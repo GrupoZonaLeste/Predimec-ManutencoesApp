@@ -1,9 +1,12 @@
 const db = require('./db')
 
+const apiDocsInfos = require('./apidocs-info.json')
 const express = require('express')
 const app = express()
 const cors = require("cors")
+const swagger = require("swagger-ui-express")
 
+app.use("/api-docs", swagger.serve, swagger.setup(apiDocsInfos))
 app.use(express.json())
 app.use(cors({
     origin: "*",  
@@ -42,8 +45,10 @@ app.get("/listar-membros", async (req, res) => {
 })
 
 app.post('/login', async (req, res) => {
-    if (await db.getUsuario(req.body.login, req.body.senha)){
-        res.status(200).send({"mensagem": "usuario logado!"})
+    let resposta = await db.getUsuario(req.body.login, req.body.senha) 
+
+    if (resposta[0]){
+        res.status(200).send({"mensagem": "usuario logado!", "tipo": resposta[1]})
     } else {
         res.status(404).send({"mensagem": "usuario não encontrado"})
     }

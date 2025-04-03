@@ -1,0 +1,94 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API referente ao App de manutenções da Predimec.",
+        "description": "API contendo todas as funcionalidades/endpoints da aplicação",
+        "version": "0.1"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:5000",
+            "description": "URL para testes dos endpoints"
+        }
+    ],
+    "paths": {
+        "/cadastro-membro": {
+            "post": {
+                "summary": "Cadastro de membro do app",
+                "description": "Rota responsável pelo cadastro dos dados dos membros que utlizarão o app.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CadastroUsuario"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login":{
+            "post": {
+                "summary": "Login de usuário",
+                "description": "Rota responsável por fazer o login de todos os usuários independente do tipo.",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/LoginUsuario"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/listar-membros":{
+            "get": {
+                "summary": "Retornar todos os membros.",
+                "description": "Rota responsável por retornar todos os dados de todos os membros."
+            }
+        },
+
+        "/delete-membro":{
+            "delete": {
+                "summary": "Deleta o membro específicado.",
+                "description": "Rota responsável por deletar o membro especificado nos parâmetros."
+            }
+        },
+        "/update-membro":{
+            "put": {
+                "summary": "Atualiza o membro específicado.",
+                "description": "Rota responsável por atualizar os dados do membro especificado nos parâmetros."
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "CadastroUsuario": {
+                "type": "object",
+                "properties": {
+                    "nome": {
+                        "type": "string"
+                    },
+                    "login": {
+                        "type": "string"
+                    },
+                    "senha": {
+                        "type": "string"
+                    }
+                }
+            },
+            "LoginUsuario": {
+                "type": "object",
+                "properties": {
+                    "login": {
+                        "type": "string"
+                    },
+                    "senha": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -8,15 +8,33 @@ import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 
+import urlapi from '../utils/devconfig'
+
 const CriarMembroModal = ({modalVisible, setModalVisible}) => {
   const [nome, setNome] = useState('')
   const [login, setLogin] = useState('')
   const [senha, setSenha] = useState('')
 
-  const criarMembro = () => {
+  const criarMembro = async () => {
+    if (nome == '' || login == '' || senha == ''){
+      Alert.alert("Erro", "Preencha todos os campos")
+      return
+    }
+
+    await fetch(`${urlapi.urlapi}/cadastro-membro/`, {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-type': 'application/json'        
+      },
+      body: JSON.stringify({
+        nome: nome,
+        login: login,
+        senha: senha
+      })
+    })
     
-    // FAZER O POST PRA SALVAR O MEMBRO
-    Alert.alert("Sucesso","Membro Cadastrado\n"+nome+" - "+login+" - "+senha)
+    Alert.alert("Sucesso!","Membro Cadastrado")
   }
 
   return(
@@ -28,7 +46,7 @@ const CriarMembroModal = ({modalVisible, setModalVisible}) => {
         <TextInput containerStyle={styles.input} placeholder="Digite o login do membro" onChangeText={setLogin}/>
         <Text style={styles.label}>Senha</Text>
         <TextInput containerStyle={styles.input} placeholder="Digite a senha do membro" onChangeText={setSenha}/>
-        <Button containerStyle={styles.button} title="Criar novo membro" onPress={criarMembro}></Button>
+        <Button containerStyle={styles.button} title="Criar novo membro" onPress={async () => await criarMembro()}></Button>
       </View>
     </Modal>
   )

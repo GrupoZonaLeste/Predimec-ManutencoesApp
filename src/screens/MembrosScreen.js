@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useEffect, useState} from 'react'
 import { View, Text, StyleSheet, StatusBar, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
@@ -9,6 +9,9 @@ import EditarMembroModal from '../modals/EditarMembroModal';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
+
+import urlapi from '../utils/devconfig'
+import ConfigScreen from './ConfigScreen';
 
 const MembrosScreen = () => {
   const [modalNovoMembro, setModalNovoMembro] = useState(false)
@@ -22,7 +25,8 @@ const MembrosScreen = () => {
   const [oldNome, setOldNome] = useState()
   const [oldLogin, setOldLogin] = useState()
   const [oldSenha, setOldSenha] = useState()
-
+  const [dadosMembro, setDadoMembro] = useState([])
+  const [updateFlag, setUpdateFlag] = useState(0);
 
   const toggleModalEditarMembro = (nome, login, senha) => {
     setOldNome(nome)
@@ -31,10 +35,27 @@ const MembrosScreen = () => {
     setModalEditarMembro(!modalEditarMembro)
   }
 
+  useEffect(() => {
+    const pegarDados = async () => {   
+        let resposta = await fetch(`${urlapi.urlapi}/listar-membros`, {
+            method: 'GET',
+            headers: {
+              Accept: 'application/json',
+              'Content-type': 'application/json'        
+            }
+        })
+        let dados = await resposta.json() 
+        setDadoMembro(Object.entries(dados))
+    }
+    pegarDados()
+  }, [updateFlag])
 
-
+  const forcarAtualizacao = () => {
+    setUpdateFlag(prev => prev + 1); 
+  };
   return(
     <View style={styles.mainContainer}>
+      <Button title='FA' onPress={forcarAtualizacao}></Button>
       <CriarMembroModal modalVisible={modalNovoMembro} setModalVisible={setModalNovoMembro} />
       <EditarMembroModal 
         modalVisible={modalEditarMembro} 
@@ -55,21 +76,20 @@ const MembrosScreen = () => {
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         <ScrollView style={[{flex: 1}, styles.manutenContainer]} persistentScrollbar={true}>
-          {/**
-           * Aqui vai ser necessário fazer um laço pra renderizar cada funcionario do banco
-           */}
-          <CardFuncionario 
-            nome="Funcionario 1" 
-            login="abc@abc.com" 
-            senha="123123123" 
-            toggleModal={() => toggleModalEditarMembro("Funcionario 1", "abc@abc.com", "123123123")}
-          />
-          <CardFuncionario 
-            nome="Funcionario 2" 
-            login="xyz@xyz.com" 
-            senha="100100100" 
-            toggleModal={() => toggleModalEditarMembro("Funcionario 2", "xyz@xyz.com", "100100100")}
-          />
+          {
+            dadosMembro.map((element) => {
+              return(
+                <CardFuncionario
+                key={element[0]}
+                nome={element[1].nome} 
+                login={element[1].email} 
+                senha={element[1].senha}
+                dataCriacao={element[1].datacriacao} 
+                toggleModal={() => toggleModalEditarMembro(element[1].nome, element[1].email, element[1].senha)}
+                />
+              )
+            })
+          }
         </ScrollView>
       </View>
     </View>

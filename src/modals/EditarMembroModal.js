@@ -8,14 +8,32 @@ import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 
+import urlapi from '../utils/devconfig'
+
 const EditarMembroModal = ({modalVisible, setModalVisible, oldNome, oldLogin, oldSenha}) => {
   const [nomeAlt, setNome] = useState('')
   const [loginAlt, setLogin] = useState('')
   const [senhaAlt, setSenha] = useState('')
 
-  const alterarMembro = () => {
-    // FAZER O POST PRA ALTERAR O MEMBRO
-    Alert.alert("Sucesso","Membro Alterado com Sucesso\n"+nomeAlt+" - "+loginAlt+" - "+senhaAlt)
+  const alterarMembro = async () => {
+    if (nomeAlt == '' || loginAlt == '' || senhaAlt == ''){
+      Alert.alert("Erro", "Preencha todos os campos")
+      return
+    }
+    await fetch(`${urlapi.urlapi}/update-membro/${oldLogin}`, {
+      method: 'PUT',
+      headers: {
+        Accept: 'application/json',
+        'Content-type': 'application/json'        
+      },
+      body: JSON.stringify({
+        nome: nomeAlt,
+        login: loginAlt,
+        senha: senhaAlt
+      })
+    })
+
+    Alert.alert("Sucesso","Membro Alterado com Sucesso")
   }
 
   // Iniciando os useStates com os valores antigos

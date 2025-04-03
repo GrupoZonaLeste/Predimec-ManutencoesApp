@@ -2,21 +2,31 @@ const WRfiles = require('node:fs/promises')
 const manipulateINI = require('ini')
 const { Console } = require('node:console')
 
+
+const formatarData = (data) => {
+    const dia = String(data.getDate()).padStart(2, '0'); 
+    const mes = String(data.getMonth() + 1).padStart(2, '0'); 
+    const ano = data.getFullYear();
+
+    return `${dia}/${mes}/${ano}`;
+};
+
+
 async function addInfosDatabase(nome, email, senha) {
     let user = await getUsuario(email)
-    console.log(user)
-    if(user){
+    if(user[0]){
         return false
     }
     let texto = await WRfiles.readFile('./database.ini', {
         encoding: 'utf-8'
     })
-
+    const hoje = new Date()
     let config = manipulateINI.parse(texto)
     config[`membro_${Math.round(Math.random() * (1, 100000) + 1)}${nome.charAt(0)}`] = {
         nome: nome,
         email: email,
-        senha: senha
+        senha: senha,
+        datacriacao: formatarData(hoje)
     }
 
     texto = manipulateINI.stringify(config)
@@ -31,13 +41,18 @@ async function getUsuario(login, senha=''){
     })
     
     let infos = manipulateINI.parse(texto)
-    let retorno = false 
 
-    Object.entries(infos).forEach(element => {  
-        senha != '' && login == element[1].email && senha == element[1].senha ? retorno = true : retorno = false
-        login == element[1].email ? retorno = true : retorno = false
+    let resposta = []
+    Object.entries(infos).forEach(element => { 
+        if(senha != '' && login == element[1].email && senha == element[1].senha) {
+            resposta.push(true)
+            resposta.push(element[0].split("_")[0])
+        }
+        if(senha == '' && login == element[1].email){
+            resposta.push(true)
+        }
     })
-    return retorno
+    return resposta
 }
 
 async function getUsuarioData(login){
@@ -71,7 +86,6 @@ async function updateUsuario(login, novosdados){
         }
     })
 
-    console.log(id)
     if(id) {
         let membroid = `membro_${id}` 
         infos[`${membroid}`].nome = novosdados.nome
@@ -116,9 +130,10 @@ async function listUsuarios() {
 
     let infos = manipulateINI.parse(texto)
     let users = {}
-    Object.entries(infos).forEach(element => {  
-        users[element[0]] = element[1]
-    })
+    for (let [key, value] of Object.entries(infos)) {
+        if (key === "admin_1") continue
+        users[key] = value
+    }
     return users
 }
 
