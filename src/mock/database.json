@@ -1,0 +1,30 @@
+{
+  "Funcionarios": [],
+  "Clientes": [
+    {
+      "id": 1,
+      "nome": "Cliente ABC",
+      "criacao": "11/11/11",
+      "manutencoes": []
+    },
+    {
+      "id": 2,
+      "nome": "Empresa ABC",
+      "criacao": "11/11/11",
+      "manutencoes": []
+    },
+    {
+      "id": 3,
+      "nome": "Cliente XYZ",
+      "criacao": "11/11/11",
+      "manutencoes": []
+    },
+    {
+      "id": 4,
+      "nome": "Empresa QWERTY",
+      "criacao": "11/11/11",
+      "manutencoes": []
+    }
+  ],
+  "Membros": []
+}

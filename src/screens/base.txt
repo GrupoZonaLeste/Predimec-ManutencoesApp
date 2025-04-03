@@ -1,0 +1,11 @@
+import {View, Text, StyleSheet} from 'react-native'
+
+const Comp = () => {
+
+}
+
+const styles = StyleSheet.create({
+    
+})
+
+export default Comp
