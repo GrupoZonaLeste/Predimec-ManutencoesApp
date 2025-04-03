@@ -12,7 +12,7 @@ app.use(cors({
 }));
 
 app.post("/cadastro-membro", async (req, res) => {
-    user = await db.addInfosDatabase(req.body.nome, req.body.login, req.body.senha)
+    let user = await db.addInfosDatabase(req.body.nome, req.body.login, req.body.senha)
     if (Object.keys(req.body).includes("nome") &&
         Object.keys(req.body).includes("login") &&
         Object.keys(req.body).includes("senha") &&
@@ -24,6 +24,22 @@ app.post("/cadastro-membro", async (req, res) => {
     }
 })
 
+app.put("/update-membro/:login", async (req, res) => {
+    let updateUser
+    updateUser = await db.updateUsuario(req.params.login, req.body)
+    res.send({"status": updateUser == "200" ? "ok" : updateUser})
+})
+
+app.delete("/delete-membro/:login", async (req, res) => {
+    let deleteUser
+    deleteUser = await db.deleteUsuario(req.params.login)
+    res.send({"status": deleteUser == "200" ? "ok" : deleteUser})
+})
+
+app.get("/listar-membros", async (req, res) => {
+    let users = await db.listUsuarios()
+    res.send(users)
+})
 
 app.post('/login', async (req, res) => {
     if (await db.getUsuario(req.body.login, req.body.senha)){
