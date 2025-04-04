@@ -1,3 +1,4 @@
+import {useState} from 'react'
 import { View, Text, StyleSheet, Image, StatusBar, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
@@ -5,6 +6,8 @@ import database from '../mock/database.json'
 import CardSmallManutencao from '../components/CardSmallManutencao'
 import ButtonAdd from '../components/ButtonAdd';
 import CardCliente from '../components/CardCliente';
+import CriarClienteModal from '../modals/CriarClienteModal'
+import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
@@ -22,8 +25,16 @@ const HomeScreen = () => {
     })
   }
 
+  const [modalCriarCliente, setModalCriarCliente] = useState(false)
+
+  const toggleModal = () => {
+    setModalCriarCliente(!modalCriarCliente)
+  }
+
   return(
     <View style={styles.mainContainer}>
+      <CriarClienteModal modalVisible={modalCriarCliente} setModalVisible={setModalCriarCliente} />
+
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'center'}}>
         <Logomarca />
       </View>
@@ -41,9 +52,9 @@ const HomeScreen = () => {
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', padding: spacing.xlarge}}>
         <View style={[{flex: 'auto'}, styles.clientesHeader]}>
           <Text style={[styles.titulo, {textAlign: 'left'}]}>Todos os Clientes</Text>
-          <ButtonAdd />
+          <ButtonAdd onPress={toggleModal}/>
         </View>
-        <ScrollView style={[{flex: 1}, styles.clientesContainer]} persistentScrollbar={true}>
+        <ScrollView style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}>
           {database.Clientes.map((item) => {
             return(
               <CardCliente key={item.id} nome={item.nome} onPress={() => goToClientePage(item.id, item.nome)}/>

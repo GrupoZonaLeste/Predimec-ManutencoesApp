@@ -4,11 +4,8 @@ import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 
-const Button = ({title = "btn", onPress, backgroundColor, color, containerStyle}) => {
+const Button = ({title = "btn", onPress, backgroundColor, color = colors.black, containerStyle}) => {
   
-  const colorPropStyle = {
-    color: color ? color : colors.black
-  }
 
   /* Pra mudar a cor do gradiant é necessário um vetor ['#000','#000'] */
   const bgColorPropStyle = () => {
@@ -24,7 +21,7 @@ const Button = ({title = "btn", onPress, backgroundColor, color, containerStyle}
           start={{ x: 0.3, y: 0.2 }}
           end={{ x: 0.9, y: 0.8 }}
         >
-            <Text style={[styles.btnTexto, colorPropStyle]}>{title}</Text>
+            <Text style={[styles.btnTexto, {color: color}]}>{title}</Text>
         </LinearGradient>
       </TouchableOpacity>
     </View>

@@ -10,7 +10,7 @@ import LoginScreen from './src/screens/LoginScreen';
 import ConfigScreen from './src/screens/ConfigScreen';
 import MembrosScreen from './src/screens/MembrosScreen';
 import ClienteScreen from './src/screens/ClienteScreen';
-import ManutencaoScreen from './src/screens/ManutencaoScreen';
+import VerManutencaoScreen from './src/screens/VerManutencaoScreen';
 import { colors } from './src/constants/Colors'
 
 const activeColor = colors.white
@@ -86,7 +86,7 @@ const ClienteStack = createNativeStackNavigator({
   },
   screens: {
     Cliente: ClienteScreen,
-    Manutencao: ManutencaoScreen
+    VerManutencao: VerManutencaoScreen
   }
 })
 

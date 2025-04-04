@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native';
 import Button from '../components/Button';
 import ButtonBack from '../components/ButtonBack';
 import CardManutencao from '../components/CardManutencao';
+import { shadow } from '../constants/Effects'
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
@@ -18,7 +19,7 @@ const ClienteScreen = ({route}) => {
 
   const goToManutencaoScreen = (id, nome) => {
     navigation.navigate('ClienteStack', {
-      screen: 'Manutencao',
+      screen: 'VerManutencao',
       params: {
         id: id,
         nome: nome
@@ -28,7 +29,7 @@ const ClienteScreen = ({route}) => {
 
   return(
     <View style={styles.mainContainer}>
-      <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
+      <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         <ButtonBack onPress={goBack}/>
       </View>
 
@@ -40,7 +41,7 @@ const ClienteScreen = ({route}) => {
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         <Text style={styles.tituloManutencoes}>Manutenções</Text>
-        <ScrollView style={[{flex: 1}, styles.manutenContainer]} persistentScrollbar={true}>
+        <ScrollView style={[{flex: 1}, styles.manutenContainer, shadow]} persistentScrollbar={true}>
           <CardManutencao nome="05/00/0000" onPress={() => goToManutencaoScreen(1, "05/00/0000")}/>
           <CardManutencao nome="05/00/0000" onPress={() => goToManutencaoScreen(1, "05/00/0000")}/>
           <CardManutencao nome="05/00/0000" onPress={() => goToManutencaoScreen(1, "05/00/0000")}/>

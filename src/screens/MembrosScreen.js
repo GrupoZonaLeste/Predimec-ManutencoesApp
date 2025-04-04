@@ -6,6 +6,7 @@ import Button from '../components/Button';
 import CardFuncionario from '../components/CardFuncionario';
 import CriarMembroModal from '../modals/CriarMembroModal'
 import EditarMembroModal from '../modals/EditarMembroModal';
+import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
@@ -54,7 +55,7 @@ const MembrosScreen = () => {
       </View>
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
-        <ScrollView style={[{flex: 1}, styles.manutenContainer]} persistentScrollbar={true}>
+        <ScrollView style={[{flex: 1}, shadow,styles.funcionariosContainer]} persistentScrollbar={true}>
           {/**
            * Aqui vai ser necessário fazer um laço pra renderizar cada funcionario do banco
            */}
@@ -90,7 +91,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     fontSize: fontSizes.xlarge,
   },
-  manutenContainer: {
+  funcionariosContainer: {
     width: "100%",
     backgroundColor: colors.white,
     margin: spacing.medium,
