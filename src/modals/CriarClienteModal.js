@@ -1,5 +1,6 @@
 import React, {useState} from 'react'
 import { View, Text, StyleSheet, Alert} from 'react-native'
+import database from '../mock/database.json'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
@@ -12,7 +13,27 @@ const CriarClienteModal = ({modalVisible, setModalVisible}) => {
 
   const criarCliente = () => {
     // FAZER O POST PRA SALVAR O MEMBRO
-    Alert.alert("Sucesso","Cliente Cadastrado\n"+nome)
+    const listaClientes = database.Clientes
+    let ultimoId = listaClientes[listaClientes.length - 1].id
+
+    let newId
+    if(ultimoId){
+      newId = ultimoId + 1
+    } else {
+      newId = 1
+    }
+
+    const dataAtual = new Date(Date.now()).toLocaleDateString()
+
+    const novoCliente = {
+      "id": newId,
+      "nome": nome,
+      "criacao": dataAtual,
+      "manutencoes": []
+    }
+
+    listaClientes.push(novoCliente)
+    Alert.alert("Sucesso","Novo cliente cadastrado com sucesso")
   }
 
   return(

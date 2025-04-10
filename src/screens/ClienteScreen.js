@@ -2,6 +2,8 @@ import { View, Text, StyleSheet, StatusBar, ScrollView, Alert } from 'react-nati
 import { useNavigation } from '@react-navigation/native';
 import Button from '../components/Button';
 import ButtonBack from '../components/ButtonBack';
+import ButtonDelete from '../components/ButtonDelete';
+import ButtonEdit from '../components/ButtonEdit';
 import CardManutencao from '../components/CardManutencao';
 import database from '../mock/database.json'
 import { getClienteTemplate } from '../mock/objectTemplates';
@@ -46,13 +48,17 @@ const ClienteScreen = ({route}) => {
 
   return(
     <View style={styles.mainContainer}>
-      <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
+      <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
         <ButtonBack onPress={goBack}/>
+        <View style={{flex: 'auto', flexDirection: 'row', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
+          <ButtonEdit onPress={() => Alert.alert("EDITAR", "Editar")}/>
+          <ButtonDelete onPress={() => Alert.alert("DELETAR", "Deletar")} />
+        </View>
       </View>
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         <Text style={styles.nomeCliente}>{nome}</Text>
-        <Text style={styles.criadoEm}>Criado em 11/11/11</Text>
+        <Text style={styles.criadoEm}>Criado em {clienteObj.criacao}</Text>
         <Button 
           title='Nova Manutenção' 
           containerStyle={{width: '100%', marginVertical: spacing.medium}}

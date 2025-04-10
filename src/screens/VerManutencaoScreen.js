@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react'
 import { View, Text, StyleSheet, StatusBar, ScrollView } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
-import ButtonShare from '../components/ButtonShare'
 import ButtonBack from '../components/ButtonBack';
-import Button from '../components/Button';
+import ButtonDelete from '../components/ButtonDelete';
+import ButtonEdit from '../components/ButtonEdit';
+import CardFotosAntesDepois from '../components/CardFotosAntesDepois';
 import Chip from '../components/Chip';
 import Divider from '../components/Divider';
-import Foto from '../components/Foto'
 import TextDisplay from '../components/TextDisplay';
 import database from '../mock/database.json'
 import { getManutencaoTemplate } from '../mock/objectTemplates';
@@ -35,7 +35,10 @@ const VerManutencaoScreen = ({route}) => {
     <ScrollView style={styles.mainContainer} contentContainerStyle={styles.mainContainerAlignment}>
       <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
         <ButtonBack onPress={goBack}/>
-        <ButtonShare  onPress={() => alert('Compartilhar')} />
+        <View style={{flex: 'auto', flexDirection: 'row', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
+          <ButtonEdit onPress={() => Alert.alert("EDITAR", "Editar")}/>
+          <ButtonDelete onPress={() => Alert.alert("DELETAR", "Deletar")} />
+        </View>
       </View>
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
@@ -74,47 +77,21 @@ const VerManutencaoScreen = ({route}) => {
         </View>
 
         <View style={styles.linha}>
-          <View style={styles.linhaFoto}>
-            <View style={{flex: 0.45, justifyContent: 'center'}}>
-              <Text style={styles.label}>Antes</Text>
-              <Foto />
-              <Text numberOfLines={2} style={styles.legenda}>exemplo de legenda longa exemplo de legenda longa </Text>
-            </View>
+          {
+            manutencaoObj.fotos.map((obj, idx) => {
+              return( 
+                <CardFotosAntesDepois 
+                  key={idx}
+                  fotoAntes={obj.fotoAntes}
+                  legendaAntes={obj.legendaAntes}
+                  fotoDepois={obj.fotoDepois}
+                  legendaDepois={obj.legendaDepois}
+                />
+              )
+            })
+          }
 
-            <View style={{flex: 0.45}}>
-              <Text style={styles.label}>Depois</Text>
-              <Foto />
-              <Text numberOfLines={2} style={styles.legenda}>legenda</Text>
-            </View>
-          </View>
 
-          <View style={styles.linhaFoto}>
-            <View style={{flex: 0.45, justifyContent: 'center'}}>
-              <Text style={styles.label}>Antes</Text>
-              <Foto />
-              <Text numberOfLines={2} style={styles.legenda}>exemplo de legenda longa exemplo de legenda longa </Text>
-            </View>
-
-            <View style={{flex: 0.45}}>
-              <Text style={styles.label}>Depois</Text>
-              <Foto />
-              <Text numberOfLines={2} style={styles.legenda}>legenda</Text>
-            </View>
-          </View>
-
-          <View style={styles.linhaFoto}>
-            <View style={{flex: 0.45, justifyContent: 'center'}}>
-              <Text style={styles.label}>Antes</Text>
-              <Foto />
-              <Text numberOfLines={2} style={styles.legenda}>exemplo de legenda longa exemplo de legenda longa </Text>
-            </View>
-
-            <View style={{flex: 0.45}}>
-              <Text style={styles.label}>Depois</Text>
-              <Foto />
-              <Text numberOfLines={2} style={styles.legenda}>legenda</Text>
-            </View>
-          </View>
 
 
         </View>

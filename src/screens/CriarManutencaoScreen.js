@@ -63,7 +63,21 @@ const CriarManutencaoScreen = ({route}) => {
       }
     }
 
+    // buscando a ultima manutencao feita pra gerar um id
+    const cliente = database.Clientes.find(cliente => cliente.id == id)
+    const listaManutencoes = cliente.manutencoes
+    const ultimoId = listaManutencoes[listaManutencoes.length - 1].id
+
+    let newId
+    if(ultimoId){
+      newId = ultimoId + 1
+    } else {
+      newId = 1
+    }
+
+
     const novaManutencao = {
+      "id": newId,
       "data": manutencaoObj.data,
       "funcionario": "FUNCIONARIO_TESTE",
       "conjunto": manutencaoObj.conjunto,

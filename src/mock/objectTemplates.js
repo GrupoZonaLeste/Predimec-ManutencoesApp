@@ -1,7 +1,7 @@
 export const getMembroTemplate = () => {
   return(
     {
-      "id": "",
+      "id": 0,
       "nome": "",
       "login": "",
       "senha": ""
@@ -12,7 +12,7 @@ export const getMembroTemplate = () => {
 export const getClienteTemplate = () => {
   return(
     {
-      "id": "",
+      "id": 0,
       "nome": "",
       "criacao": "",
       "manutencoes": []
@@ -23,6 +23,7 @@ export const getClienteTemplate = () => {
 export const getManutencaoTemplate = () => {
   return(
     {
+      "id": 0,
       "data": "",
       "funcionario": "",
       "conjunto": "",
