@@ -9,12 +9,14 @@ import Divider from '../components/Divider';
 import Foto from '../components/Foto'
 import TextDisplay from '../components/TextDisplay';
 import database from '../mock/database.json'
+import { getManutencaoTemplate } from '../mock/objectTemplates';
 import { fontSizes } from '../constants/Fonts'
 import { spacing } from '../constants/Spacing'
 import { colors } from '../constants/Colors'
 
 const VerManutencaoScreen = ({route}) => {
-  const {id, nome} = route.params
+  const {id_cliente, id_manutencao} = route.params
+  const [manutencaoObj, setManutencaoObj] = useState(getManutencaoTemplate())
 
   const navigation = useNavigation()
 
@@ -22,24 +24,12 @@ const VerManutencaoScreen = ({route}) => {
     navigation.goBack()
   }
   
-  const [nomeManutencao, setNomeManutencao] = useState('')
-  const [nomeFuncionario, setNomeFuncionario] = useState('')
-  const [dataCriacao, setDataCriacao] = useState('')
-
   useEffect(() => {
-    const fetchGetDados = (id) => {
-      let dataMock = new Date(Date.now()).toLocaleDateString()
-      /**
-       * Fazer o GET com o id da manutencao e carregar os dados
-       */
-      setNomeManutencao('11/01/2010')
-      setNomeFuncionario('Funcionario 1')
-      setDataCriacao(dataMock)
-    }
-
-    fetchGetDados()
+    let cliente = database.Clientes.find(cliente => cliente.id == id_cliente)
+    let manutencao = cliente.manutencoes.find(manutencao => manutencao.id == id_manutencao)
+    
+    setManutencaoObj(manutencao)
   }, [])
-  
 
   return(
     <ScrollView style={styles.mainContainer} contentContainerStyle={styles.mainContainerAlignment}>
@@ -49,9 +39,8 @@ const VerManutencaoScreen = ({route}) => {
       </View>
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
-        <Text style={styles.nomeManutencao}>{nomeManutencao}</Text>
-        <Text style={styles.nomeFuncionario}>{nomeFuncionario}</Text>
-        <Text style={styles.dataCriacao}>Criado em: {dataCriacao}</Text>
+        <Text style={styles.nomeManutencao}>{manutencaoObj.data}</Text>
+        <Text style={styles.nomeFuncionario}>{manutencaoObj.funcionario}</Text>
         <Divider/>
       </View>
 
@@ -62,22 +51,20 @@ const VerManutencaoScreen = ({route}) => {
 
         <View style={styles.linha}>
           <Text style={styles.label}>Conjunto</Text>
-          <TextDisplay> </TextDisplay>
+          <TextDisplay>{manutencaoObj.conjunto}</TextDisplay>
         </View>
 
         <View style={styles.linha}>
           <Text style={styles.label}>TAG</Text>
-          <TextDisplay> </TextDisplay>
+          <TextDisplay>{manutencaoObj.tag}</TextDisplay>
         </View>
 
         <View style={styles.linha}>
           <Text style={styles.label}>Trocas</Text>
           <View style={styles.chipContainer}>
-            <Chip readOnly={true}>Eixo</Chip>
-            <Chip readOnly={true}>Mancal</Chip>
-            <Chip readOnly={true}>Rolamento</Chip>
-            <Chip readOnly={true}>Polia</Chip>
-            <Chip readOnly={true}>ABCD</Chip>
+            {manutencaoObj.trocas.split(";").map((troca, idx) => {
+              return <Chip key={idx} readOnly>{troca}</Chip>
+            })}
           </View>
           <Divider/>
         </View>

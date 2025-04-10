@@ -5,7 +5,7 @@ export const colors = {
     red: "#E52525",
     black: '#343434',
     white: '#FAF9F6',
-    bronze: "#d89027",
+    yellow: "#FBB430",
     gray: '#DEDEDE',
     darkGray: "#747474",
     transparentBlack: "rgba(52, 52, 52, 0.8)"

@@ -3,7 +3,7 @@ import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 
-const TextInput = ({placeholder, onChangeText, style, containerStyle, defaultValue, password = false}) => {
+const TextInput = ({placeholder, onChangeText, style, containerStyle, value, defaultValue, password = false}) => {
 
   return(
     <View style={[{justifyContent: 'center'},containerStyle]}>
@@ -12,6 +12,7 @@ const TextInput = ({placeholder, onChangeText, style, containerStyle, defaultVal
         placeholder={placeholder} 
         style={[styles.textInput, style]} 
         placeholderTextColor={colors.darkGray} 
+        value={value}
         onChangeText={onChangeText}
         defaultValue={defaultValue}
       />

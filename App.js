@@ -11,6 +11,7 @@ import ConfigScreen from './src/screens/ConfigScreen';
 import MembrosScreen from './src/screens/MembrosScreen';
 import ClienteScreen from './src/screens/ClienteScreen';
 import VerManutencaoScreen from './src/screens/VerManutencaoScreen';
+import CriarManutencaoScreen from './src/screens/CriarManutencaoScreen';
 import { colors } from './src/constants/Colors'
 
 const activeColor = colors.white
@@ -86,7 +87,8 @@ const ClienteStack = createNativeStackNavigator({
   },
   screens: {
     Cliente: ClienteScreen,
-    VerManutencao: VerManutencaoScreen
+    VerManutencao: VerManutencaoScreen, 
+    CriarManutencao: CriarManutencaoScreen
   }
 })
 

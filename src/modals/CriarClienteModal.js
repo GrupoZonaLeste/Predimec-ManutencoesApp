@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, Alert} from 'react-native'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
-import { validarEmail, validarInputs } from '../utils/Validadores'
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
