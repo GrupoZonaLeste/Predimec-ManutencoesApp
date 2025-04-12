@@ -1,6 +1,7 @@
-import React, {useState, useEffect} from 'react'
-import { View, Text, StyleSheet, StatusBar, ScrollView, Alert } from 'react-native'
+import React, {useState, useEffect, useContext} from 'react'
+import { View, Text, StyleSheet, StatusBar, ScrollView, Alert, FlatList } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
+import { AuthContext } from '../contexts/AuthContext';
 import ButtonAdd from '../components/ButtonAdd';
 import ButtonShare from '../components/ButtonShare'
 import ButtonBack from '../components/ButtonBack';
@@ -18,40 +19,48 @@ import { spacing } from '../constants/Spacing'
 import { colors } from '../constants/Colors'
 
 const CriarManutencaoScreen = ({route}) => {
-  const {id, } = route.params
+  const { id } = route.params
+  const { usuario } = useContext(AuthContext)
 
   const navigation = useNavigation()
-
-  const goBack = () => {
-    navigation.goBack()
-  }
 
   // modal adicionar foto
   const [modalNovaFoto, setModalNovaFoto] = useState(false)
 
-  // Lista de chips adicionados pelo usuarios
-  const [listaCustomChips, setListaCustomChips] = useState([])
+  // Lista de chips adicionados pelo usuario e texto do input "Outro..." na seção Trocas
+  const [listaChips, setListaChips] = useState(["Eixo", "Mancal","Rolamento","Polia"])
   const [customChip, setCustomChip] = useState("")
+
+  /* Adiciona nova opção de Troca na lista disponivel */
+  const addNovoChip = () => {
+    if(customChip != ""){
+      setListaChips([...listaChips, customChip])
+    }
+    setCustomChip("")
+  }
 
   // Dados da nova manutenção
   const [clienteObj, setClienteObj] = useState(getClienteTemplate())
   const [manutencaoObj, setManutencaoObj] = useState(getManutencaoTemplate())
   const [listaTrocas, setListaTrocas] = useState([])
   const [listaFotos, setListaFotos] = useState([])
-  
-
-  useEffect(() => {
-    setClienteObj(database.Clientes.find(cliente => cliente.id == id))
-
-    let dataAtual = new Date(Date.now()).toLocaleDateString()
-
-    setManutencaoObj(obj => ({
-      ...obj,
-      "data": dataAtual
-    }))
-  }, [])
 
   const criarNovaManutencao = () => {
+    if(manutencaoObj.conjunto == ""){
+      Alert.alert("Erro", "Preencha o campo Conjunto")
+      return
+    }
+
+    if(manutencaoObj.tag == ""){
+      Alert.alert("Erro", "Preencha o campo Tag")
+      return
+    }
+
+    if(listaTrocas.length == 0){
+      Alert.alert("Erro", "Informe quais trocas foram feitas")
+      return
+    }
+
     let string_trocas = ""
 
     // montando a string das trocas 
@@ -66,20 +75,25 @@ const CriarManutencaoScreen = ({route}) => {
     // buscando a ultima manutencao feita pra gerar um id
     const cliente = database.Clientes.find(cliente => cliente.id == id)
     const listaManutencoes = cliente.manutencoes
-    const ultimoId = listaManutencoes[listaManutencoes.length - 1].id
-
+    
     let newId
-    if(ultimoId){
-      newId = ultimoId + 1
+    if(listaManutencoes.length > 0){
+      const ultimoId = listaManutencoes[listaManutencoes.length - 1].id
+
+      if(ultimoId){
+        newId = ultimoId + 1
+      } 
     } else {
       newId = 1
     }
 
 
+    
+
     const novaManutencao = {
       "id": newId,
       "data": manutencaoObj.data,
-      "funcionario": "FUNCIONARIO_TESTE",
+      "funcionario": usuario.nome,
       "conjunto": manutencaoObj.conjunto,
       "tag": manutencaoObj.tag,
       "trocas": string_trocas,
@@ -90,22 +104,23 @@ const CriarManutencaoScreen = ({route}) => {
 
     clienteObj.manutencoes.push(novaManutencao)
     Alert.alert("Sucesso", "Manutenção criada com sucesso")
-    navigation.goBack(2)
+    navigation.goBack()
   } 
 
-  /* Adiciona nova opção de Troca na lista disponivel */
-  const addNovoChip = () => {
-    if(customChip != ""){
-      setListaCustomChips([...listaCustomChips, customChip])
-    }
-    setListaTrocas(customChip)
-    setCustomChip("")
-  }
+  useEffect(() => {
+    setClienteObj(database.Clientes.find(cliente => cliente.id == id))
 
-  const printarLista = () => {
-    console.warn(listaTrocas)
-  }
+    let dataAtual = new Date(Date.now()).toLocaleDateString()
+    let horaAtual = new Date(Date.now()).toLocaleTimeString()
 
+    let dataHora = `${dataAtual} - ${horaAtual}`
+
+    setManutencaoObj(obj => ({
+      ...obj,
+      "data": dataHora
+    }))
+  }, [])
+  
   return(
     <ScrollView style={styles.mainContainer} contentContainerStyle={styles.mainContainerAlignment}>
       <AdicionarFotoModal 
@@ -116,14 +131,14 @@ const CriarManutencaoScreen = ({route}) => {
       />
 
       <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
-        <ButtonBack onPress={goBack}/>
+        <ButtonBack onPress={() => navigation.goBack()}/>
       </View>
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         <Text style={styles.tituloPagina}>Nova Manutenção</Text>
         <Text style={styles.nomeCliente}>{clienteObj.nome}</Text>
         <Text style={styles.nomeManutencao}>{manutencaoObj.data}</Text>
-        <Text style={styles.nomeFuncionario}>TESTE</Text>
+        <Text style={styles.nomeFuncionario}>Criador: {usuario.nome}</Text>
         <Divider/>
       </View>
 
@@ -150,23 +165,28 @@ const CriarManutencaoScreen = ({route}) => {
 
         <View style={styles.linha}>
           <Text style={styles.label}>Trocas</Text>
-          <View style={styles.chipContainer}>
-            <Chip list={listaTrocas} setList={setListaTrocas}>Eixo</Chip>
-            <Chip list={listaTrocas} setList={setListaTrocas}>Mancal</Chip>
-            <Chip list={listaTrocas} setList={setListaTrocas}>Rolamento</Chip>
-            <Chip list={listaTrocas} setList={setListaTrocas}>Polia</Chip>
-            {
-              listaCustomChips.map((chip, idx) => {
-                return <Chip key={idx} list={listaTrocas} setList={setListaTrocas} isSelected>{chip}</Chip>                      
-              })
-            }
-          </View>
+          <FlatList
+            data={listaChips}
+            style={{flex: 1, width: "100%"}}
+            contentContainerStyle={{flex: 1, width: '100%'}}
+            keyExtractor={(item, idx) => idx}
+            renderItem={({item,}) => (
+              <Chip 
+                list={listaTrocas} 
+                setList={setListaTrocas} 
+              >
+                {item}
+              </Chip>  
+            )}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={true}
+          />
 
           {/* INPUT DE ADD NOVAS TROCAS */}
           <View style={{width: '100%', flexDirection: 'row', justifyContent: 'flex-start', marginVertical: spacing.medium}}>
             <TextInput 
               placeholder="Outro..." 
-              containerStyle={{width: '50%', marginHorizontal: spacing.medium}}
+              containerStyle={{width: '50%', marginHorizontal: spacing.small}}
               value={customChip}
               onChangeText={setCustomChip}
             />
@@ -182,19 +202,20 @@ const CriarManutencaoScreen = ({route}) => {
         </View>
 
         <View style={styles.linha}>
-          {
-            listaFotos.map((obj, idx) => {
-              return( 
-                <CardFotosAntesDepois 
-                  key={idx}
-                  fotoAntes={obj.fotoAntes}
-                  legendaAntes={obj.legendaAntes}
-                  fotoDepois={obj.fotoDepois}
-                  legendaDepois={obj.legendaDepois}
-                />
-              )
-            })
-          }
+          <FlatList
+            data={listaFotos}
+            keyExtractor={(item, idx) => idx}
+            renderItem={({item,}) => (
+              <CardFotosAntesDepois 
+                fotoAntes={item.fotoAntes}
+                legendaAntes={item.legendaAntes}
+                fotoDepois={item.fotoDepois}
+                legendaDepois={item.legendaDepois}
+              />
+            )}
+            scrollEnabled={false}
+            showsVerticalScrollIndicator={true}
+          />
           <Divider />
         </View>
 
@@ -264,7 +285,6 @@ const styles = StyleSheet.create({
   chipContainer: {
     flex: 1,
     flexDirection: 'row',
-    flexWrap: 'wrap',
     width: '100%',
   },
   linhaFoto: {

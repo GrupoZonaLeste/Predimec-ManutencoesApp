@@ -1,23 +1,45 @@
-import {View, Text, StyleSheet, Image, StatusBar} from 'react-native'
+import {View, Text, StyleSheet, StatusBar, Alert} from 'react-native'
 import { useNavigation } from '@react-navigation/native';
-import Logo from '../../assets/logo/logo-completa.png'
+import Logomarca from '../components/Logomarca';
 import Button from '../components/Button'
 import TextInput from '../components/TextInput';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
+import { AuthContext } from '../contexts/AuthContext';
+import { useContext, useEffect, useState } from 'react';
 
 const LoginScreen = () => {
-  const navigation = useNavigation();
+  const { login } = useContext(AuthContext)
 
-  const goToHomepage = () => {
-    navigation.navigate('HomeTabs', {screen: 'Home'})
+  const [loginUser, setLoginUser] = useState('')
+  const [senhaUser, setSenhaUser] = useState('')
+
+  const handleLogin = async () => {
+    try{
+      if(!loginUser || !senhaUser){
+        Alert.alert('Erro', 'Preencha todos os campos');
+        return;
+      }
+
+      login(loginUser, senhaUser)
+    }catch(e){
+      Alert.alert("Erro de Login", "Login ou senha invalidos")
+    }
   }
+
+  useEffect(() => {
+    Alert.alert("Info para Login",
+                  "ADMIN\nLogin: admin@admin.com\nSenha: admin\n\n"+
+                  "FUNCIONARIO\nLogin: abc@abc.com\nSenha: 12341234")
+    
+  }, [])
+  
   
   return(
     <View style={styles.mainContainer}>
       <View style={{flex: 0.4, width: '100%', alignItems: 'center', justifyContent: 'center'}}>
-        <Image style={styles.logo} source={require('../../assets/logo/logo-completa.png')}/>
+        <Logomarca />
       </View>
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', padding: spacing.medium}}> 
@@ -26,12 +48,20 @@ const LoginScreen = () => {
 
         <View style={[styles.loginContainer, styles.elevation]}>
           <Text style={[styles.texto, styles.inputMargin]}>Login</Text>
-          <TextInput placeholder="Digite o login" style={styles.inputMargin}/>
+          <TextInput 
+            placeholder="Digite o login" 
+            style={styles.inputMargin}
+            onChangeText={setLoginUser}
+          />
 
           <Text style={[styles.texto, styles.inputMargin]}>Senha</Text>
-          <TextInput placeholder="Digite a senha" style={styles.inputMargin} password={true}/>
+          <TextInput 
+            placeholder="Digite a senha" style={styles.inputMargin} 
+            password={true}
+            onChangeText={setSenhaUser}
+          />
 
-          <Button title="Fazer Login" containerStyle={styles.buttonStyle} onPress={goToHomepage}/>
+          <Button title="Fazer Login" containerStyle={styles.buttonStyle} onPress={handleLogin}/>
         </View>
       </View>
       

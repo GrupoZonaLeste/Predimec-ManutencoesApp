@@ -21,6 +21,15 @@ const AdicionarFotoModal = ({modalVisible, setModalVisible, list, setList}) => {
   */
   const [fotoObj, setFotoObj] = useState(getFotoTemplate())
 
+  const getNewId = () => {
+    if(list.length > 0){
+      let ultimaFoto = list[list.length - 1]
+      return (ultimaFoto.id + 1)
+    } else {
+      return 1
+    }
+  }
+  
   const escolherFoto = async (nomeFoto) => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
@@ -39,10 +48,12 @@ const AdicionarFotoModal = ({modalVisible, setModalVisible, list, setList}) => {
     if (!result.canceled) {
       //setState(result.assets[0].base64)
       if(nomeFoto == "antes"){
-        setFotoObj(obj => ({...obj, "fotoAntes": result.assets[0].base64}))
+        let novoId = getNewId()
+        setFotoObj(obj => ({...obj, "id": novoId,"fotoAntes": result.assets[0].base64}))
       }  
       if(nomeFoto == "depois"){
-        setFotoObj(obj => ({...obj, "fotoDepois": result.assets[0].base64}))
+        let novoId = getNewId()
+        setFotoObj(obj => ({...obj, "id": novoId, "fotoDepois": result.assets[0].base64}))
       }
     } else {
       Alert.alert("Erro", "Você não escolheu uma foto")

@@ -4,18 +4,17 @@ import { fontSizes } from '../constants/Fonts'
 import { spacing } from '../constants/Spacing'
 import { colors } from '../constants/Colors'
 
-const CardConfiguracao = ({onPress, nome, children}) => {
+const CardConfiguracao = ({onPress, nome, children, textStyle}) => {
   return(
     <TouchableOpacity style={styles.container} onPress={onPress}>
       {children}
-      <Text style={styles.nomeConfig}>{nome}</Text>
+      <Text style={[styles.nomeConfig, textStyle]}>{nome}</Text>
     </TouchableOpacity>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     borderBottomWidth: 1.5,
     borderTopColor: colors.gray,
     borderBottomColor: colors.gray,

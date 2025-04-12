@@ -1,5 +1,4 @@
 {
-  "Funcionarios": [],
   "Clientes": [
     {
       "id": 1,
@@ -8,38 +7,58 @@
       "manutencoes": [
         {
           "id": "1",
-          "data": "27/03/25",
+          "data": "13/02/2025 - 11:33:21",
           "funcionario": "funcionario 1",
           "conjunto": "Teste",
           "tag": "Teste",
           "trocas": "Eixo;Mancal;Rolamento;Polia;ABCD",
-          "fotos": [
-            {
-              "fotoAntes": "",
-              "fotoDepois": ""
-            }
-          ]
+          "fotos": []
         }
       ]
     },
     {
       "id": 2,
       "nome": "Empresa ABC",
-      "criacao": "11/11/11",
-      "manutencoes": []
+      "criacao": "27/03/2025",
+      "manutencoes": [
+        {
+          "id": "1",
+          "data": "27/03/25 - 14:22:00",
+          "funcionario": "funcionario 1",
+          "conjunto": "Teste",
+          "tag": "Teste",
+          "trocas": "Eixo;Mancal;Rolamento",
+          "fotos": []
+        }
+      ]
     },
     {
       "id": 3,
       "nome": "Cliente XYZ",
-      "criacao": "11/11/11",
+      "criacao": "13/02/2025",
       "manutencoes": []
     },
     {
       "id": 4,
       "nome": "Empresa QWERTY",
-      "criacao": "11/11/11",
+      "criacao": "13/02/2025",
       "manutencoes": []
     }
   ],
-  "Membros": []
+  "Membros": [
+    {
+      "id": 1,
+      "nome": "Admin",
+      "tipo": "admin",
+      "login": "admin@admin.com",
+      "senha": "admin"
+    },
+    {
+      "id": 2,
+      "nome": "Funcionário 1",
+      "tipo": "funcionario",
+      "login": "abc@abc.com",
+      "senha": "12341234"
+    }
+  ]
 }

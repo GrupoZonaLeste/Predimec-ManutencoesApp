@@ -1,5 +1,5 @@
-import { View, Text, StyleSheet, StatusBar, ScrollView, Alert } from 'react-native'
-import { useNavigation } from '@react-navigation/native';
+import { View, Text, StyleSheet, StatusBar, Alert, FlatList} from 'react-native'
+import { useNavigation, useIsFocused} from '@react-navigation/native';
 import Button from '../components/Button';
 import ButtonBack from '../components/ButtonBack';
 import ButtonDelete from '../components/ButtonDelete';
@@ -11,17 +11,13 @@ import { shadow } from '../constants/Effects'
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
-import { useEffect, useState } from 'react';
+import { useEffect, useState} from 'react';
 
 const ClienteScreen = ({route}) => {
   const {id, nome} = route.params
   const [clienteObj, setClienteObj] = useState(getClienteTemplate())
 
   const navigation = useNavigation()
-
-  const goBack = () => {
-    navigation.goBack()
-  }
 
   const goToVerManutencao = (id_cliente, id_manutencao) => {
     navigation.navigate('ClienteStack', {
@@ -42,14 +38,20 @@ const ClienteScreen = ({route}) => {
     })
   }
 
+  // Renderização e Re-renderizacao
+
+  // Esse Hook do react-native detecta toda vez que o usuário entra na tela
+  const focused = useIsFocused()
+
   useEffect(() => {
     setClienteObj(database.Clientes.find(cliente => cliente.id == id))
-  }, [])
+  }, [focused])
+
 
   return(
     <View style={styles.mainContainer}>
       <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
-        <ButtonBack onPress={goBack}/>
+        <ButtonBack onPress={() => navigation.goBack()}/>
         <View style={{flex: 'auto', flexDirection: 'row', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
           <ButtonEdit onPress={() => Alert.alert("EDITAR", "Editar")}/>
           <ButtonDelete onPress={() => Alert.alert("DELETAR", "Deletar")} />
@@ -68,11 +70,19 @@ const ClienteScreen = ({route}) => {
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         <Text style={styles.tituloManutencoes}>Manutenções</Text>
-        <ScrollView style={[{flex: 1}, styles.manutenContainer, shadow]} persistentScrollbar={true}>
-          {clienteObj.manutencoes.map((manutencao, idx) => {
-            return <CardManutencao key={idx} nome={manutencao.data} onPress={() => goToVerManutencao(clienteObj.id, manutencao.id)}/>
-          })}
-        </ScrollView>
+
+        <FlatList
+          style={[{flex: 1}, shadow, styles.manutenContainer]}
+          data={clienteObj.manutencoes}
+          keyExtractor={(item, idx) => idx}
+          renderItem={({ item }) => (
+            <CardManutencao 
+              nome={item.data} 
+              onPress={() => goToVerManutencao(clienteObj.id, item.id)}
+            />
+          )}
+          showsVerticalScrollIndicator={true}
+        />
       </View>
     </View>
   )

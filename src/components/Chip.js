@@ -45,7 +45,7 @@ const Chip = ({list, setList, children, readOnly = false, isSelected = false}) =
   } else {
     return(
       <View style={[styles.readOnlyContainer]}>
-        <Text style={[styles.readOnlyText]}>{children}</Text>
+        <Text style={[styles.readOnlyText]}>{"\u2022  "+children}</Text>
       </View>
     )
   }
@@ -54,9 +54,11 @@ const Chip = ({list, setList, children, readOnly = false, isSelected = false}) =
 
 const styles = StyleSheet.create({
   container: {
+    flex: 0.5,
+    width: '50%',
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
     borderWidth: 1,
     borderColor: colors.darkGray,
     borderRadius: 8,
@@ -68,19 +70,21 @@ const styles = StyleSheet.create({
   readOnlyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-around',
+    justifyContent: 'flex-start',
     paddingHorizontal: spacing.large,
     margin: spacing.small,
   },
   text: {
+    width: '85%',
     fontFamily: 'Inter-Regular',
   },
   readOnlyText: {
+    width: 'auto',
     fontFamily: 'Inter-SemiBold',
     fontSize: fontSizes.small
   },
   icon: {
-    marginRight: spacing.medium
+    marginRight: spacing.medium,
   }
 })
 

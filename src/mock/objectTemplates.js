@@ -37,6 +37,7 @@ export const getManutencaoTemplate = () => {
 export const getFotoTemplate = () => {
   return(
     {
+      "id": 0,
       "fotoAntes": "",
       "legendaAntes": "",
       "fotoDepois": "",

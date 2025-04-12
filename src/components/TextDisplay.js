@@ -19,7 +19,9 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     backgroundColor: 'green',
     minHeight: 40,
-    backgroundColor: colors.gray,
+    borderWidth: 1,
+    borderColor: colors.gray,
+    backgroundColor: colors.white,
     borderRadius: 8,
   },
   textDisplay: {

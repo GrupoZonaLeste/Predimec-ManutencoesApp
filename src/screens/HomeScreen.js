@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import { View, Text, StyleSheet, Image, StatusBar, ScrollView } from 'react-native'
+import { View, Text, StyleSheet, Image, StatusBar, ScrollView, FlatList} from 'react-native'
 import { useNavigation } from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
 import database from '../mock/database.json'
@@ -54,15 +54,16 @@ const HomeScreen = () => {
           <Text style={[styles.titulo, {textAlign: 'left'}]}>Todos os Clientes</Text>
           <ButtonAdd onPress={toggleModal}/>
         </View>
-        <ScrollView style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}>
-          {database.Clientes.map((item) => {
-            return(
-              <CardCliente key={item.id} nome={item.nome} onPress={() => goToClientePage(item.id, item.nome)}/>
-            )
-          })
-
-          }
-        </ScrollView>
+        <FlatList style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}
+          data={database.Clientes}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <CardCliente
+              nome={item.nome}
+              onPress={() => goToClientePage(item.id, item.nome)}
+            />
+          )}
+        />
       </View>
       
     </View>
