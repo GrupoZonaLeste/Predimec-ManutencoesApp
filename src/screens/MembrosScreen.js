@@ -1,48 +1,50 @@
-import React, {useState} from 'react'
-import { View, Text, StyleSheet, StatusBar, ScrollView } from 'react-native'
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect, useContext} from 'react'
+import { View, Text, StyleSheet, StatusBar, ScrollView, Image, FlatList } from 'react-native'
+import { useIsFocused} from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
 import Button from '../components/Button';
 import CardFuncionario from '../components/CardFuncionario';
-import CriarMembroModal from '../modals/CriarMembroModal'
+import CriarMembroModal from '../modals/CriarMembroModal';
+import database from '../mock/database.json'
 import EditarMembroModal from '../modals/EditarMembroModal';
 import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
+import { AuthContext } from '../contexts/AuthContext';
 
 const MembrosScreen = () => {
+  const { usuario } = useContext(AuthContext)
   const [modalNovoMembro, setModalNovoMembro] = useState(false)
   const [modalEditarMembro, setModalEditarMembro] = useState(false)
-
+  const [updateFlag, setUpdateFlag] = useState(0)
   
+  const [listaMembros, setListaMembros] = useState([])
+  const [membroId, setMembroId] = useState(0)
+
   const toggleModalNovoMembro = () => {
     setModalNovoMembro(!modalNovoMembro)
   }
-  
-  const [oldNome, setOldNome] = useState()
-  const [oldLogin, setOldLogin] = useState()
-  const [oldSenha, setOldSenha] = useState()
 
-
-  const toggleModalEditarMembro = (nome, login, senha) => {
-    setOldNome(nome)
-    setOldLogin(login)
-    setOldSenha(senha)
+  const toggleModalEditarMembro = (id) => {
+    setMembroId(id)
     setModalEditarMembro(!modalEditarMembro)
   }
 
-
+  useEffect(() => {
+    let listaMembros = database.Membros.filter(item => item.id != usuario.id)
+    setListaMembros(listaMembros)
+  }, [modalNovoMembro, updateFlag])
 
   return(
     <View style={styles.mainContainer}>
       <CriarMembroModal modalVisible={modalNovoMembro} setModalVisible={setModalNovoMembro} />
       <EditarMembroModal 
         modalVisible={modalEditarMembro} 
-        setModalVisible={setModalEditarMembro} 
-        oldLogin={oldLogin} 
-        oldNome={oldNome}
-        oldSenha={oldSenha}
+        setModalVisible={setModalEditarMembro}
+        updateFlag={updateFlag}
+        setUpdateFlag={setUpdateFlag} 
+        membroId={membroId}
       />
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
@@ -55,23 +57,32 @@ const MembrosScreen = () => {
       </View>
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
-        <ScrollView style={[{flex: 1}, shadow,styles.funcionariosContainer]} persistentScrollbar={true}>
-          {/**
-           * Aqui vai ser necessário fazer um laço pra renderizar cada funcionario do banco
-           */}
-          <CardFuncionario 
-            nome="Funcionario 1" 
-            login="abc@abc.com" 
-            senha="123123123" 
-            toggleModal={() => toggleModalEditarMembro("Funcionario 1", "abc@abc.com", "123123123")}
+        {database.Membros == 0 ? (
+          <View style={[{flex: 1}, shadow, styles.nenhumMembroContainer]}>
+            <Image 
+              style={styles.imgNenhumMembro}
+              source={require('../../assets/images/imagem_nenhum_membro.png')} 
+            />
+            <Text style={styles.textoNenhumMembro}>Ainda não há membros cadastrados</Text>
+          </View>
+        ) : (
+          <FlatList style={[{flex: 1}, shadow,styles.funcionariosContainer]} persistentScrollbar={true} 
+            data={listaMembros}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({item}) => (
+              <CardFuncionario
+                id={item.id}
+                data={item.data}
+                nome={item.nome}
+                login={item.login}
+                senha={item.senha}
+                toggleModal={() => toggleModalEditarMembro(item.id)}
+                setUpdateFlag={setUpdateFlag}
+              />
+            )}
           />
-          <CardFuncionario 
-            nome="Funcionario 2" 
-            login="xyz@xyz.com" 
-            senha="100100100" 
-            toggleModal={() => toggleModalEditarMembro("Funcionario 2", "xyz@xyz.com", "100100100")}
-          />
-        </ScrollView>
+        )}
+        
       </View>
     </View>
   )
@@ -99,6 +110,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.large,
     borderColor: colors.gray,
     borderRadius: 8,
+  },
+  nenhumMembroContainer: { 
+    width: '100%', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+    margin: spacing.medium,
+    borderWidth: 1,
+    paddingHorizontal: spacing.large,
+    borderColor: colors.gray,
+    borderRadius: 8,
+  },
+  imgNenhumMembro: {
+    width: 512 / 4,
+    height: 512 / 4,
+    opacity: 0.8,
+    marginVertical: spacing.medium,
+  },
+  textoNenhumMembro: {
+    color: colors.darkGray,
+    fontFamily: 'Inter-Regular',
+    fontSize: fontSizes.medium,
+    width: '75%',
+    textAlign: 'center',
+    marginVertical: spacing.medium,
   }
 })
 

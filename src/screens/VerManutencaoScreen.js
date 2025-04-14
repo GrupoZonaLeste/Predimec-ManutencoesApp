@@ -1,6 +1,6 @@
 import React, {useState, useEffect, useContext} from 'react'
 import { View, Text, StyleSheet, StatusBar, ScrollView, FlatList, Alert } from 'react-native'
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import AdicionarFotoModal from '../modals/AdicionarFotoModal';
 import ButtonBack from '../components/ButtonBack';
 import ButtonAdd from '../components/ButtonAdd';
@@ -26,6 +26,8 @@ import { AuthContext } from '../contexts/AuthContext';
 const VerManutencaoScreen = ({route}) => {
   const { usuario } = useContext(AuthContext)
   const {id_cliente, id_manutencao} = route.params
+  const [updateFlag, setUpdateFlag] = useState(0)
+
   const navigation = useNavigation()
 
   // Dados da manutenção
@@ -44,6 +46,7 @@ const VerManutencaoScreen = ({route}) => {
     if(customChip != ""){
       setListaChips([...listaChips, customChip])
     }
+    setListaEditTrocas([...listaEditTrocas, customChip])
     setCustomChip("")
   }
 
@@ -83,7 +86,7 @@ const VerManutencaoScreen = ({route}) => {
     // manutencao editada
     const novaManutencao = {
       "id": id_manutencao,
-      "data": manutencaoObj.data,
+      "data": newManutencaoObj.data,
       "funcionario": newManutencaoObj.funcionario,
       "conjunto": newManutencaoObj.conjunto,
       "tag": newManutencaoObj.tag,
@@ -92,12 +95,17 @@ const VerManutencaoScreen = ({route}) => {
     }
 
     /* FAZER AQUI O POST/PUT PARA ATUALIZAR A MANUTENCAO */
-    let listaManutencoesAtualizada = clienteObj.manutencoes.filter(item => item.id != id_manutencao)
-    listaManutencoesAtualizada.push(novaManutencao)
+    let listaAtualizada = clienteObj.manutencoes.filter(item => item.id != id_manutencao)
+    listaAtualizada.push(novaManutencao)
 
-    clienteObj.manutencoes = listaManutencoesAtualizada
+    // Ordenando a lista (Só precisa fazer pro JSON)
+    // Ordenação decrescente (Mais novo primeiro)
+    listaAtualizada.sort((a, b) => a.id - b.id)
+
+    clienteObj.manutencoes = listaAtualizada
+    
     Alert.alert("Sucesso", "Manutenção criada com sucesso")
-    navigation.goBack()
+    setUpdateFlag(updateFlag => updateFlag + 1)
   }
 
   const deletarManutencao = () => {
@@ -129,20 +137,24 @@ const VerManutencaoScreen = ({route}) => {
     );
   }
 
-  // Carregando os dados da manutencao
+  // Renderização do conteudo da manutencao e re-render
+  const focused = useIsFocused()
+
   useEffect(() => {
     // FAZER UM GET PARA PUXAR O CLIENTE DO BANCO
-    setClienteObj(database.Clientes.find(cliente => cliente.id == id_cliente))
+    let cliente = database.Clientes.find(cliente => cliente.id == id_cliente)
+    setClienteObj(cliente)
 
     // FAZER UM GET PARA PUXAR A MANUTENCAO DO BANCO
-    let cliente = database.Clientes.find(cliente => cliente.id == id_cliente)
     let manutencao = cliente.manutencoes.find(manutencao => manutencao.id == id_manutencao)
     
     setManutencaoObj(manutencao)
     setNewManutencaoObj(manutencao)
     setListaEditFotos(manutencao.fotos)
+    setListaEditTrocas(manutencao.trocas.split(";"))
     setListaChips(manutencao.trocas.split(";"))
-  }, [])
+    setIsEditMode(false)
+  }, [focused, updateFlag])
 
   // Checagem de permissão pra editar
   const permissaoEditar = (usuario.nome == manutencaoObj.funcionario || usuario.tipo == "admin")
@@ -162,11 +174,11 @@ const VerManutencaoScreen = ({route}) => {
 
       <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
         <ButtonBack onPress={() => navigation.goBack()}/>
-        <View style={{flex: 'auto', flexDirection: 'row', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
+        <View style={{flex: 'auto', flexDirection: 'row-reverse', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
           {permissaoEditar && (
             <>
-              <ButtonEdit isSelected={isEditMode} onPress={() => setIsEditMode(!isEditMode)}/>
               <ButtonDelete onPress={confirmarDeletar} />
+              <ButtonEdit isSelected={isEditMode} onPress={() => setIsEditMode(!isEditMode)}/>
             </>
           )}
         </View>
@@ -174,7 +186,10 @@ const VerManutencaoScreen = ({route}) => {
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         {isEditMode && (
-          <Button title="Salvar Alterações" containerStyle={{width: '100%'}} onPress={salvarAlteracao} />
+          <>
+            <Button title="Salvar Alterações" containerStyle={{width: '100%'}} onPress={salvarAlteracao} />
+            <Divider />
+          </>
         )}
         <Text style={styles.nomeManutencao}>{manutencaoObj.data}</Text>
         <Text style={styles.nomeFuncionario}>Criador: {manutencaoObj.funcionario}</Text>
@@ -226,6 +241,7 @@ const VerManutencaoScreen = ({route}) => {
                   <Chip 
                     list={listaEditTrocas} 
                     setList={setListaEditTrocas} 
+                    isSelected={listaEditTrocas ? true : false}
                   >
                     {item}
                   </Chip>  

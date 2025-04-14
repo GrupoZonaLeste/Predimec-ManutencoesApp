@@ -14,13 +14,13 @@ const CriarClienteModal = ({modalVisible, setModalVisible}) => {
   const criarCliente = () => {
     // FAZER O POST PRA SALVAR O MEMBRO
     const listaClientes = database.Clientes
-    let ultimoId = listaClientes[listaClientes.length - 1].id
 
-    let newId
-    if(ultimoId){
-      newId = ultimoId + 1
+    let newId = 0
+    if(listaClientes.length > 0){
+      let ultimoId = listaClientes[listaClientes.length - 1].id
+      newId = parseInt(ultimoId) + 1
     } else {
-      newId = 1
+      newId = parseInt(1)
     }
 
     const dataAtual = new Date(Date.now()).toLocaleDateString()
@@ -33,6 +33,7 @@ const CriarClienteModal = ({modalVisible, setModalVisible}) => {
     }
 
     listaClientes.push(novoCliente)
+    setModalVisible(false)
     Alert.alert("Sucesso","Novo cliente cadastrado com sucesso")
   }
 

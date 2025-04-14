@@ -1,6 +1,6 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import { View, Text, StyleSheet, Image, StatusBar, ScrollView, FlatList} from 'react-native'
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
 import database from '../mock/database.json'
 import CardSmallManutencao from '../components/CardSmallManutencao'
@@ -11,16 +11,18 @@ import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
+import { getClienteTemplate } from '../mock/objectTemplates';
 
 const HomeScreen = () => {
   const navigation = useNavigation()
 
-  const goToClientePage = (id, nome) => {
+  const [listaClientes, setListaClientes] = useState(getClienteTemplate())
+
+  const goToClientePage = (id) => {
     navigation.navigate('ClienteStack',{
       screen: 'Cliente',
       params: {
-        id: id,
-        nome: nome
+        id: id
       }
     })
   }
@@ -30,6 +32,13 @@ const HomeScreen = () => {
   const toggleModal = () => {
     setModalCriarCliente(!modalCriarCliente)
   }
+
+  // Renderização da lista e re-render
+  const focused = useIsFocused()
+
+  useEffect(() => {
+    setListaClientes(database.Clientes)
+  }, [focused, modalCriarCliente])
 
   return(
     <View style={styles.mainContainer}>
@@ -54,16 +63,27 @@ const HomeScreen = () => {
           <Text style={[styles.titulo, {textAlign: 'left'}]}>Todos os Clientes</Text>
           <ButtonAdd onPress={toggleModal}/>
         </View>
-        <FlatList style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}
-          data={database.Clientes}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <CardCliente
-              nome={item.nome}
-              onPress={() => goToClientePage(item.id, item.nome)}
+        {listaClientes.length == 0 ? (
+          <View style={[{flex: 1}, shadow, styles.nenhumClienteContainer]}>
+            <Image 
+              style={styles.imgNenhumCliente}
+              source={require('../../assets/images/imagem_nenhum_cliente.png')} 
             />
-          )}
-        />
+            <Text style={styles.textoNenhumCliente}>Não há clientes cadastrados</Text>
+          </View>
+        ) : (
+          <FlatList style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}
+            data={listaClientes}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({ item }) => (
+              <CardCliente
+                nome={item.nome}
+                onPress={() => goToClientePage(item.id)}
+              />
+            )}
+          />
+        )}
+        
       </View>
       
     </View>
@@ -123,6 +143,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.large,
     borderColor: colors.gray,
     borderRadius: 8,
+  },
+  nenhumClienteContainer: { 
+    width: '100%', 
+    alignItems: 'center', 
+    justifyContent: 'center',
+    backgroundColor: colors.white,
+    margin: spacing.medium,
+    borderWidth: 1,
+    paddingHorizontal: spacing.large,
+    borderColor: colors.gray,
+    borderRadius: 8,
+  },
+  imgNenhumCliente: {
+    width: 556 / 4,
+    height: 512 / 4,
+    opacity: 0.8,
+    marginVertical: spacing.medium,
+  },
+  textoNenhumCliente: {
+    color: colors.darkGray,
+    fontFamily: 'Inter-Regular',
+    fontSize: fontSizes.medium,
+    width: '75%',
+    textAlign: 'center',
+    marginVertical: spacing.medium,
   }
 })
 

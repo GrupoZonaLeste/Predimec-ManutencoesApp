@@ -76,19 +76,16 @@ const CriarManutencaoScreen = ({route}) => {
     const cliente = database.Clientes.find(cliente => cliente.id == id)
     const listaManutencoes = cliente.manutencoes
     
-    let newId
+    let newId = 0;
     if(listaManutencoes.length > 0){
       const ultimoId = listaManutencoes[listaManutencoes.length - 1].id
 
       if(ultimoId){
-        newId = ultimoId + 1
+        newId = parseInt(ultimoId) + 1
       } 
     } else {
-      newId = 1
+      newId = parseInt(1)
     }
-
-
-    
 
     const novaManutencao = {
       "id": newId,
@@ -101,8 +98,8 @@ const CriarManutencaoScreen = ({route}) => {
     }
 
     /* POST PARA SALVAR A NOVA MANUTENCAO */
-
     clienteObj.manutencoes.push(novaManutencao)
+    
     Alert.alert("Sucesso", "Manutenção criada com sucesso")
     navigation.goBack()
   } 

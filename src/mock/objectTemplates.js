@@ -2,6 +2,8 @@ export const getMembroTemplate = () => {
   return(
     {
       "id": 0,
+      "data": "",
+      "tipo": "",
       "nome": "",
       "login": "",
       "senha": ""
