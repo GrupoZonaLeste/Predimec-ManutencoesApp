@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react'
-import { View, Text, StyleSheet, StatusBar, ScrollView, FlatList, Alert } from 'react-native'
+import { View, Text, StyleSheet, StatusBar, ScrollView, FlatList, Alert, RefreshControl} from 'react-native'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import AdicionarFotoModal from '../modals/AdicionarFotoModal';
 import ButtonBack from '../components/ButtonBack';
@@ -20,16 +20,34 @@ import { colors } from '../constants/Colors'
 import Button from '../components/Button';
 import { AuthContext } from '../contexts/AuthContext';
 
-/*
-  PARA ENTENDER MELHOR ESSA TELA, VEJA A TELA DE CRIAR MANUTENCAO
-  O MODO DE EDIÇÃO USA A MESMA LOGICA DA CRIACAO DE MANUTENCAO
-*/
 const VerManutencaoScreen = ({route}) => {
   const { usuario } = useContext(AuthContext)
   const {id_cliente, id_manutencao} = route.params
-  const [updateFlag, setUpdateFlag] = useState(0)
-
+  
   const navigation = useNavigation()
+
+  // estado e função para efetuar recarregamento de lista
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      let cliente = database.Clientes.find(cliente => cliente.id == id_cliente)
+      setClienteObj(cliente)
+
+      let manutencao = cliente.manutencoes.find(manutencao => manutencao.id == id_manutencao)
+      
+      setManutencaoObj(manutencao)
+      setNewManutencaoObj(manutencao)
+      setListaEditFotos(manutencao.fotos)
+      setListaEditTrocas(manutencao.trocas.split(";"))
+      setListaChips(manutencao.trocas.split(";"))
+      setIsEditMode(false)
+      
+      setRefreshing(false)
+    }, 500)
+  }
 
   // modal adicionar foto usado no modo de edição
   const [modalNovaFoto, setModalNovaFoto] = useState(false)
@@ -38,17 +56,17 @@ const VerManutencaoScreen = ({route}) => {
   const [modalVerFoto, setModalVerFoto] = useState(false)
   const [fotoSelecionada, setFotoSelecionada] = useState(getFotoTemplate())
 
-  
+  // função para informar ao modal de ver foto qual foto foi selecionada
   const handleVerFoto = (fotoObj) => {
     setFotoSelecionada(fotoObj) 
     setModalVerFoto(true)
   }
 
-  // Dados da manutenção
+  // Dados do cliente e da manutenção
   const [clienteObj, setClienteObj] = useState(getClienteTemplate())
   const [manutencaoObj, setManutencaoObj] = useState(getManutencaoTemplate())
 
-  // Lista de chips adicionados pelo usuario e texto do input "Outro..." no modo de edição
+  // Lista de chips (trocas) adicionados pelo usuario e texto do input "Outro..." no modo de edição
   const [listaChips, setListaChips] = useState([])
   const [customChip, setCustomChip] = useState("")
 
@@ -61,9 +79,11 @@ const VerManutencaoScreen = ({route}) => {
     setCustomChip("")
   }
 
+  // Estado que define se a tela está em modo de edição ou não
+  const [isEditMode, setIsEditMode] = useState(false)
+
   // Dados da versão editada da manutenção
   const [newManutencaoObj, setNewManutencaoObj] = useState(getManutencaoTemplate())
-  const [isEditMode, setIsEditMode] = useState(false)
   const [listaEditTrocas, setListaEditTrocas] = useState([])
   const [listaEditFotos, setListaEditFotos] = useState([])
  
@@ -150,6 +170,7 @@ const VerManutencaoScreen = ({route}) => {
 
   // Renderização do conteudo da manutencao e re-render
   const focused = useIsFocused()
+  const [updateFlag, setUpdateFlag] = useState(0)
 
   useEffect(() => {
     // FAZER UM GET PARA PUXAR O CLIENTE DO BANCO
@@ -167,7 +188,7 @@ const VerManutencaoScreen = ({route}) => {
     setIsEditMode(false)
   }, [focused, updateFlag])
 
-  // Checagem de permissão pra editar
+  // Checagem de permissão pra editar. Os botões de editar e excluir só aparecem pro criador da manutenção e pro admin
   const permissaoEditar = (usuario.nome == manutencaoObj.funcionario || usuario.tipo == "admin")
 
   const containerEditStyle = isEditMode ?
@@ -175,7 +196,13 @@ const VerManutencaoScreen = ({route}) => {
     ({borderWidth: 0, borderColor: 'transparent'})
 
   return(
-    <ScrollView style={[styles.mainContainer, containerEditStyle]} contentContainerStyle={styles.mainContainerAlignment}>
+    <ScrollView 
+      style={[styles.mainContainer, containerEditStyle]} 
+      contentContainerStyle={styles.mainContainerAlignment}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>
+      }
+    >
       <AdicionarFotoModal 
         modalVisible={modalNovaFoto} 
         setModalVisible={setModalNovaFoto} 
