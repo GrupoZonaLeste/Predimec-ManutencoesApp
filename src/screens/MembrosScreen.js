@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react'
-import { View, Text, StyleSheet, StatusBar, ScrollView, Image, FlatList } from 'react-native'
+import { View, Text, StyleSheet, StatusBar, ScrollView, Image, FlatList, RefreshControl} from 'react-native'
 import { useIsFocused} from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
 import Button from '../components/Button';
@@ -21,6 +21,20 @@ const MembrosScreen = () => {
   
   const [listaMembros, setListaMembros] = useState([])
   const [membroId, setMembroId] = useState(0)
+
+  // estado e função para efetuar recarregamento de lista
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      let listaMembros = database.Membros.filter(item => item.id != usuario.id)
+      listaMembros = listaMembros.filter(item => item.tipo != 'admin')
+      setListaMembros(listaMembros)
+      setRefreshing(false)
+    }, 500)
+  }
 
   const toggleModalNovoMembro = () => {
     setModalNovoMembro(!modalNovoMembro)
@@ -57,14 +71,20 @@ const MembrosScreen = () => {
       </View>
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
-        {database.Membros == 0 ? (
-          <View style={[{flex: 1}, shadow, styles.nenhumMembroContainer]}>
+        {listaMembros == 0 ? (
+          <ScrollView 
+            style={[{flex: 1}, shadow, styles.nenhumMembroContainer]}
+            contentContainerStyle={{height: '100%', alignItems: 'center', justifyContent: 'center'}}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            }  
+          >
             <Image 
               style={styles.imgNenhumMembro}
               source={require('../../assets/images/imagem_nenhum_membro.png')} 
             />
             <Text style={styles.textoNenhumMembro}>Ainda não há membros cadastrados</Text>
-          </View>
+          </ScrollView>
         ) : (
           <FlatList style={[{flex: 1}, shadow,styles.funcionariosContainer]} persistentScrollbar={true} 
             data={listaMembros}
@@ -80,6 +100,8 @@ const MembrosScreen = () => {
                 setUpdateFlag={setUpdateFlag}
               />
             )}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
           />
         )}
         
@@ -113,8 +135,6 @@ const styles = StyleSheet.create({
   },
   nenhumMembroContainer: { 
     width: '100%', 
-    alignItems: 'center', 
-    justifyContent: 'center',
     backgroundColor: colors.white,
     margin: spacing.medium,
     borderWidth: 1,

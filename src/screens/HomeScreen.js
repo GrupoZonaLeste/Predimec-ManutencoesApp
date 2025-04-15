@@ -1,5 +1,5 @@
 import {useState, useEffect} from 'react'
-import { View, Text, StyleSheet, Image, StatusBar, ScrollView, FlatList} from 'react-native'
+import { View, Text, StyleSheet, Image, StatusBar, ScrollView, FlatList, RefreshControl} from 'react-native'
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
 import database from '../mock/database.json'
@@ -15,9 +15,21 @@ import { getClienteTemplate } from '../mock/objectTemplates';
 
 const HomeScreen = () => {
   const navigation = useNavigation()
-
   const [listaClientes, setListaClientes] = useState(getClienteTemplate())
 
+  // estado e função para efetuar recarregamento de lista
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      setListaClientes(database.Clientes)
+      setRefreshing(false)
+    }, 500)
+  }
+
+  // navegação
   const goToClientePage = (id) => {
     navigation.navigate('ClienteStack',{
       screen: 'Cliente',
@@ -27,6 +39,7 @@ const HomeScreen = () => {
     })
   }
 
+  // modal de criar cliente
   const [modalCriarCliente, setModalCriarCliente] = useState(false)
 
   const toggleModal = () => {
@@ -64,24 +77,39 @@ const HomeScreen = () => {
           <ButtonAdd onPress={toggleModal}/>
         </View>
         {listaClientes.length == 0 ? (
-          <View style={[{flex: 1}, shadow, styles.nenhumClienteContainer]}>
-            <Image 
-              style={styles.imgNenhumCliente}
-              source={require('../../assets/images/imagem_nenhum_cliente.png')} 
-            />
-            <Text style={styles.textoNenhumCliente}>Não há clientes cadastrados</Text>
-          </View>
-        ) : (
-          <FlatList style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}
-            data={listaClientes}
-            keyExtractor={(item) => item.id.toString()}
-            renderItem={({ item }) => (
-              <CardCliente
-                nome={item.nome}
-                onPress={() => goToClientePage(item.id)}
+          <>
+            <ScrollView 
+              style={[{flex: 1}, shadow, styles.nenhumClienteContainer]}
+              contentContainerStyle={{height: '100%', alignItems: 'center', justifyContent: 'center'}}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+              }
+            >
+              <Image 
+                style={styles.imgNenhumCliente}
+                source={require('../../assets/images/imagem_nenhum_cliente.png')} 
               />
-            )}
-          />
+              <Text style={styles.textoNenhumCliente}>Não há clientes cadastrados</Text>
+            </ScrollView>
+            <Text style={styles.dicaLista}>Puxe a lista para baixo para recarregar</Text>
+          </>
+        ) : (
+          <>
+            <FlatList style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}
+              data={listaClientes}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <CardCliente
+                  nome={item.nome}
+                  onPress={() => goToClientePage(item.id)}
+                />
+              )}
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+            />
+            <Text style={styles.dicaLista}>Puxe a lista para baixo para recarregar</Text>
+          </>
+          
         )}
         
       </View>
@@ -135,6 +163,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     marginVertical: spacing.medium,
   },
+  dicaLista: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12
+  },
   clientesContainer: {
     width: "100%",
     backgroundColor: colors.white,
@@ -146,8 +178,6 @@ const styles = StyleSheet.create({
   },
   nenhumClienteContainer: { 
     width: '100%', 
-    alignItems: 'center', 
-    justifyContent: 'center',
     backgroundColor: colors.white,
     margin: spacing.medium,
     borderWidth: 1,

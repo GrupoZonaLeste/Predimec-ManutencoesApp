@@ -4,14 +4,14 @@ import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 
-const CardFotosAntesDepois = ({id, fotoAntes, legendaAntes, fotoDepois, legendaDepois, list, setList, isEditable = false}) => {
+const CardFotosAntesDepois = ({id, fotoAntes, legendaAntes, fotoDepois, legendaDepois, list, setList, isEditable = false, onPress}) => {
   const handleDelete = () => {
     setList(list.filter(item => item.id != id))
   }
 
   if(!isEditable){
     return(
-      <View style={styles.linhaFoto}>
+      <TouchableOpacity style={styles.linhaFoto} onPress={onPress}>
         <View style={{flex: 0.45, justifyContent: 'center'}}>
           <Text style={styles.label}>Antes</Text>
           <Image 
@@ -29,25 +29,25 @@ const CardFotosAntesDepois = ({id, fotoAntes, legendaAntes, fotoDepois, legendaD
           />
           <Text numberOfLines={2} style={styles.legenda}>{legendaDepois}</Text>
         </View>
-      </View>
+      </TouchableOpacity>
     )
   } else {
     return(
-      <View style={styles.linhaFoto}>
-        <View style={{flex: 0.40, justifyContent: 'center'}}>
+      <TouchableOpacity style={styles.linhaFoto} onPress={onPress}>
+        <View style={{flex: 0.40, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={styles.label}>Antes</Text>
           <Image 
             source={{ uri : `data:image/jpeg;base64,${fotoAntes}`}}
-            style={styles.imageMiniatura} 
+            style={styles.imageMiniaturaEdit} 
           />
           <Text numberOfLines={2} style={styles.legenda}>{legendaAntes}</Text>
         </View>
   
-        <View style={{flex: 0.40}}>
+        <View style={{flex: 0.40, justifyContent: 'center', alignItems: 'center'}}>
           <Text style={styles.label}>Depois</Text>
           <Image 
             source={{ uri : `data:image/jpeg;base64,${fotoDepois}`}}
-            style={styles.imageMiniatura} 
+            style={styles.imageMiniaturaEdit} 
           />
           <Text numberOfLines={2} style={styles.legenda}>{legendaDepois}</Text>
         </View>
@@ -55,7 +55,7 @@ const CardFotosAntesDepois = ({id, fotoAntes, legendaAntes, fotoDepois, legendaD
         <TouchableOpacity style={styles.botaoDeletar} onPress={handleDelete}>
           <Ionicons name="trash-sharp" size={30} color={colors.white} />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     )
   }
   
@@ -64,6 +64,7 @@ const CardFotosAntesDepois = ({id, fotoAntes, legendaAntes, fotoDepois, legendaD
 const styles = StyleSheet.create({
   linhaFoto: {
     flex: 1,
+    height: 'auto',
     flexDirection: 'row',
     borderWidth: 1,
     borderColor: colors.gray,
@@ -71,8 +72,23 @@ const styles = StyleSheet.create({
     padding: spacing.medium,
     marginVertical: spacing.small
   },
+  label: {
+    fontSize: 12,
+    textAlign: 'center'
+  },
   imageMiniatura: {
-    width: '100%',
+    alignSelf: 'center',
+    width: 150,
+    height: 150,
+    overflow: 'hidden',
+    resizeMode: 'stretch',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.black
+  },
+  imageMiniaturaEdit: {
+    alignSelf: 'center',
+    width: 100,
     height: 100,
     overflow: 'hidden',
     resizeMode: 'stretch',

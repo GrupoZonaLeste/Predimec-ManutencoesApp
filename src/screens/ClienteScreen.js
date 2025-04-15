@@ -1,5 +1,6 @@
-import { View, Text, StyleSheet, StatusBar, Alert, Image, FlatList} from 'react-native'
+import { View, Text, StyleSheet, StatusBar, Alert, Image, FlatList, ScrollView, RefreshControl} from 'react-native'
 import { useNavigation, useIsFocused} from '@react-navigation/native';
+
 import Button from '../components/Button';
 import ButtonBack from '../components/ButtonBack';
 import ButtonDelete from '../components/ButtonDelete';
@@ -7,6 +8,7 @@ import ButtonEdit from '../components/ButtonEdit';
 import CardManutencao from '../components/CardManutencao';
 import Divider from '../components/Divider';
 import TextInput from '../components/TextInput';
+
 import database from '../mock/database.json'
 import { getClienteTemplate } from '../mock/objectTemplates';
 import { shadow } from '../constants/Effects'
@@ -22,6 +24,22 @@ const ClienteScreen = ({route}) => {
   const [clienteObj, setClienteObj] = useState(getClienteTemplate())
   const [updateFlag, setUpdateFlag] = useState(0)
 
+  // estado e função para efetuar recarregamento de lista
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      let cliente = database.Clientes.find(cliente => cliente.id == id)
+      setClienteObj(cliente)
+      setNovoNome(cliente.nome)
+      setIsEditMode(false)
+      setRefreshing(false)
+    }, 500)
+  }
+
+  // navegação
   const navigation = useNavigation()
 
   const goToVerManutencao = (id_cliente, id_manutencao) => {
@@ -43,6 +61,7 @@ const ClienteScreen = ({route}) => {
     })
   }
 
+  // modo de edição
   const [isEditMode, setIsEditMode] = useState(false)
   const [novoNome, setNovoNome] = useState("")
 
@@ -151,13 +170,19 @@ const ClienteScreen = ({route}) => {
         <Text style={styles.tituloManutencoes}>Manutenções</Text>
 
         {clienteObj.manutencoes.length == 0 ? (
-          <View style={[{flex: 1}, shadow, styles.nenhumaManuContainer]}>
+          <ScrollView 
+            style={[{flex: 1}, shadow, styles.nenhumaManuContainer]} 
+            contentContainerStyle={{height: '100%', alignItems: 'center', justifyContent: 'center'}}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>
+            }
+          >
             <Image 
               style={styles.imgNenhumaManu}
               source={require('../../assets/images/imagem_nenhuma_manutencao.png')} 
             />
             <Text style={styles.textoNenhumaManu}>O Cliente não possui nenhuma manutenção</Text>
-          </View>
+          </ScrollView>
         ) : (
           <FlatList
             style={[{flex: 1}, shadow, styles.manutenContainer]}
@@ -169,6 +194,8 @@ const ClienteScreen = ({route}) => {
                 onPress={() => goToVerManutencao(clienteObj.id, item.id)}
               />
             )}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
             showsVerticalScrollIndicator={true}
           />
         )}
@@ -216,8 +243,6 @@ const styles = StyleSheet.create({
   },
   nenhumaManuContainer: { 
     width: '100%', 
-    alignItems: 'center', 
-    justifyContent: 'center',
     backgroundColor: colors.white,
     margin: spacing.medium,
     borderWidth: 1,

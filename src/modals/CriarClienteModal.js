@@ -4,7 +4,6 @@ import database from '../mock/database.json'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
-import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 

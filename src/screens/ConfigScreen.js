@@ -25,7 +25,7 @@ const ConfigScreen = () => {
       </View>
 
       <View style={{flex: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
-        <ScrollView style={[{flex: 1}, shadow, styles.configContainer]} persistentScrollbar={true}>
+        <ScrollView style={[{flex: 1}, styles.configContainer]} persistentScrollbar={true}>
           <CardConfiguracao nome="Editar Foto de Perfil">
             <MaterialIcons name="photo" size={30} color="black" />
           </CardConfiguracao>
@@ -40,8 +40,13 @@ const ConfigScreen = () => {
         </ScrollView>
       </View>
 
-      <View style={[{flex: 'auto'}, shadow, styles.configContainer]}>
-        <CardConfiguracao nome="Sair" textStyle={{color: colors.red}} onPress={logout}>
+      <View style={[{flex: 'auto'}, styles.configContainer]}>
+        <CardConfiguracao 
+          nome="Sair" 
+          containerStyle={{borderColor: colors.red}}
+          textStyle={{color: colors.red}}
+          onPress={logout}
+        >
           <SimpleLineIcons name="logout" size={24} color={colors.red} />
         </CardConfiguracao>
       </View>
@@ -67,10 +72,6 @@ const styles = StyleSheet.create({
     width: "100%",
     backgroundColor: colors.white,
     margin: spacing.medium,
-    borderWidth: 1,
-    paddingHorizontal: spacing.large,
-    borderColor: colors.gray,
-    borderRadius: 8,
   }
 })
 

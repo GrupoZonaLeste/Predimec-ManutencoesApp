@@ -1,7 +1,8 @@
 import React, {useState, useEffect, useContext} from 'react'
 import { View, Text, StyleSheet, StatusBar, ScrollView, Alert, FlatList } from 'react-native'
 import { useNavigation } from '@react-navigation/native';
-import { AuthContext } from '../contexts/AuthContext';
+
+import AdicionarFotoModal from '../modals/AdicionarFotoModal';
 import ButtonAdd from '../components/ButtonAdd';
 import ButtonShare from '../components/ButtonShare'
 import ButtonBack from '../components/ButtonBack';
@@ -9,10 +10,11 @@ import Button from '../components/Button';
 import CardFotosAntesDepois from '../components/CardFotosAntesDepois';
 import Chip from '../components/Chip';
 import Divider from '../components/Divider';
-import AdicionarFotoModal from '../modals/AdicionarFotoModal';
-import Foto from '../components/Foto'
+import VerFotoModal from '../modals/VerFotoModal';
 import TextInput from '../components/TextInput';
+
 import database from '../mock/database.json'
+import { AuthContext } from '../contexts/AuthContext';
 import { getClienteTemplate, getManutencaoTemplate, getFotoTemplate} from '../mock/objectTemplates'
 import { fontSizes } from '../constants/Fonts'
 import { spacing } from '../constants/Spacing'
@@ -26,6 +28,15 @@ const CriarManutencaoScreen = ({route}) => {
 
   // modal adicionar foto
   const [modalNovaFoto, setModalNovaFoto] = useState(false)
+
+  // modal de ver foto em tela cheia
+  const [modalVerFoto, setModalVerFoto] = useState(false)
+  const [fotoSelecionada, setFotoSelecionada] = useState(getFotoTemplate())
+
+  const handleVerFoto = (fotoObj) => {
+    setFotoSelecionada(fotoObj) 
+    setModalVerFoto(true)
+  }
 
   // Lista de chips adicionados pelo usuario e texto do input "Outro..." na seção Trocas
   const [listaChips, setListaChips] = useState(["Eixo", "Mancal","Rolamento","Polia"])
@@ -127,6 +138,12 @@ const CriarManutencaoScreen = ({route}) => {
         setList={setListaFotos}
       />
 
+      <VerFotoModal 
+        modalVisible={modalVerFoto}
+        setModalVisible={setModalVerFoto}
+        fotoObj={fotoSelecionada}
+      />
+
       <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
         <ButtonBack onPress={() => navigation.goBack()}/>
       </View>
@@ -204,10 +221,15 @@ const CriarManutencaoScreen = ({route}) => {
             keyExtractor={(item, idx) => idx}
             renderItem={({item,}) => (
               <CardFotosAntesDepois 
+                id={item.id}
                 fotoAntes={item.fotoAntes}
                 legendaAntes={item.legendaAntes}
                 fotoDepois={item.fotoDepois}
                 legendaDepois={item.legendaDepois}
+                list={listaFotos}
+                setList={setListaFotos}
+                isEditable={true}
+                onPress={() => handleVerFoto(item)}
               />
             )}
             scrollEnabled={false}

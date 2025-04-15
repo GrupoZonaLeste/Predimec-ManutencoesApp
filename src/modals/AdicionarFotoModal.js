@@ -41,6 +41,7 @@ const AdicionarFotoModal = ({modalVisible, setModalVisible, list, setList}) => {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ['images'],
       allowsEditing: true,
+      aspect: [3,3],
       quality: 1,
       base64: true
     })
@@ -61,6 +62,10 @@ const AdicionarFotoModal = ({modalVisible, setModalVisible, list, setList}) => {
   }
 
   const enviarFotos = () => {
+    if(fotoObj.fotoAntes == "" || fotoObj.fotoDepois == ""){
+      Alert.alert("Erro", "Adicione as fotos")
+      return
+    }
     setList([...list, fotoObj])
     Alert.alert("Sucesso", "Fotos adicionadas com sucesso!")
     setModalVisible(false)

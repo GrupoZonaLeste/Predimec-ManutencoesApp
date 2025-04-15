@@ -11,8 +11,9 @@ import Chip from '../components/Chip';
 import Divider from '../components/Divider';
 import TextDisplay from '../components/TextDisplay';
 import TextInput from '../components/TextInput';
+import VerFotoModal from '../modals/VerFotoModal';
 import database from '../mock/database.json'
-import { getManutencaoTemplate, getClienteTemplate } from '../mock/objectTemplates';
+import { getManutencaoTemplate, getClienteTemplate, getFotoTemplate } from '../mock/objectTemplates';
 import { fontSizes } from '../constants/Fonts'
 import { spacing } from '../constants/Spacing'
 import { colors } from '../constants/Colors'
@@ -30,12 +31,22 @@ const VerManutencaoScreen = ({route}) => {
 
   const navigation = useNavigation()
 
+  // modal adicionar foto usado no modo de edição
+  const [modalNovaFoto, setModalNovaFoto] = useState(false)
+
+  // modal de ver foto em tela cheia
+  const [modalVerFoto, setModalVerFoto] = useState(false)
+  const [fotoSelecionada, setFotoSelecionada] = useState(getFotoTemplate())
+
+  
+  const handleVerFoto = (fotoObj) => {
+    setFotoSelecionada(fotoObj) 
+    setModalVerFoto(true)
+  }
+
   // Dados da manutenção
   const [clienteObj, setClienteObj] = useState(getClienteTemplate())
   const [manutencaoObj, setManutencaoObj] = useState(getManutencaoTemplate())
-  
-  // modal adicionar foto usado no modo de edição
-  const [modalNovaFoto, setModalNovaFoto] = useState(false)
 
   // Lista de chips adicionados pelo usuario e texto do input "Outro..." no modo de edição
   const [listaChips, setListaChips] = useState([])
@@ -172,6 +183,12 @@ const VerManutencaoScreen = ({route}) => {
         setList={setListaEditFotos}
       />
 
+      <VerFotoModal 
+        modalVisible={modalVerFoto}
+        setModalVisible={setModalVerFoto}
+        fotoObj={fotoSelecionada}
+      />
+
       <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
         <ButtonBack onPress={() => navigation.goBack()}/>
         <View style={{flex: 'auto', flexDirection: 'row-reverse', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
@@ -301,6 +318,7 @@ const VerManutencaoScreen = ({route}) => {
                     list={listaEditFotos}
                     setList={setListaEditFotos}
                     isEditable={true}
+                    onPress={() => handleVerFoto(obj)}
                   />
                 )
               })
@@ -315,6 +333,7 @@ const VerManutencaoScreen = ({route}) => {
                   legendaAntes={obj.legendaAntes}
                   fotoDepois={obj.fotoDepois}
                   legendaDepois={obj.legendaDepois}
+                  onPress={() => handleVerFoto(obj)}
                 />
               )
             })
