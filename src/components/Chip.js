@@ -1,11 +1,12 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native'
+import ButtonDelete from './ButtonDelete';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 
-const Chip = ({list, setList, children, readOnly = false, isSelected = false}) => {
+const Chip = ({renderList, setRenderList, list, setList, children, readOnly = false, isSelected = false}) => {
   const [selected, setSelected] = useState(isSelected)
 
   const containerSelected = {
@@ -33,14 +34,28 @@ const Chip = ({list, setList, children, readOnly = false, isSelected = false}) =
     toggleSelected()
   }
 
+  const handleDelete = (nome) => {
+    if(list.includes(nome)){
+      setList(list.filter(item => item != nome))
+    }
+    setRenderList(renderList.filter(item => item != nome))
+  }
+
   if(!readOnly){
     return(
-      <TouchableOpacity style={[styles.container, containerSelected]} onPress={() => handleOnPress(children)}>
-        {selected && (
-          <Ionicons style={styles.icon} name="checkmark-sharp" size={18} color="black" />
-        )}
-        <Text style={[styles.text, textSelected]}>{children}</Text>
-      </TouchableOpacity>
+      <View style={{flex: 1, flexDirection: 'row', height: 'auto', alignItems: 'center'}}>
+        <TouchableOpacity style={[styles.container, containerSelected]} onPress={() => handleOnPress(children)}>
+          {selected && (
+            <Ionicons style={styles.icon} name="checkmark-sharp" size={18} color="black" />
+          )}
+          <Text style={[styles.text, textSelected]}>{children}</Text>
+        </TouchableOpacity>
+        <ButtonDelete 
+          size={20} 
+          containerStyle={styles.deleteButton}
+          onPress={() => handleDelete(children)}
+        />
+      </View>
     )
   } else {
     return(
@@ -54,8 +69,8 @@ const Chip = ({list, setList, children, readOnly = false, isSelected = false}) =
 
 const styles = StyleSheet.create({
   container: {
-    flex: 0.5,
     width: '50%',
+    height: 45,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
@@ -63,7 +78,6 @@ const styles = StyleSheet.create({
     borderColor: colors.darkGray,
     borderRadius: 8,
     paddingHorizontal: spacing.large,
-    paddingVertical: spacing.medium,
     margin: spacing.small,
     backgroundColor: colors.white
   },
@@ -85,6 +99,12 @@ const styles = StyleSheet.create({
   },
   icon: {
     marginRight: spacing.medium,
+  },
+  deleteButton: {
+    borderWidth: 1, 
+    padding: spacing.small, 
+    borderColor: colors.red,
+    marginHorizontal: spacing.medium
   }
 })
 

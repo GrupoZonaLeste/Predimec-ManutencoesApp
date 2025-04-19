@@ -6,19 +6,28 @@
       "criacao": "13/02/2025",
       "manutencoes": [
         {
-          "id": "1",
-          "data": "13/02/2025 - 11:33:21",
+          "id": 1,
+          "data": "13/02/2025 11:33:21",
           "funcionario": "funcionario 1",
-          "conjunto": "Teste",
-          "tag": "Teste",
-          "trocas": "Eixo;Mancal;Rolamento;Polia",
-          "fotos": [
+          "equipamentos": [
             {
               "id": 1,
-              "fotoAntes": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII",
-              "legendaAntes": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu",
-              "fotoDepois": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII",
-              "legendaDepois": "Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu. In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede mollis pretium. Integer tincidunt. Cras dapibu"
+              "data": "13/02/2025",
+              "nome": "Equipamento 01",
+              "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id maximus metus. Proin id orci elit. Curabitur suscipit iaculis pharetra. Curabitur vel auctor ligula, laoreet lobortis lorem. Etiam suscipit eu velit id condimentum",
+              "trocas": "Polia;Mancal;Rolamento;Fonte",
+              "fotos": [
+                {
+                  "id": 1,
+                  "nome": "Foto-17042025-193022",
+                  "foto": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+                },
+                {
+                  "id": 2,
+                  "nome": "Foto-17042025-193422",
+                  "foto": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+                }
+              ]
             }
           ]
         }
@@ -28,17 +37,7 @@
       "id": 2,
       "nome": "Empresa ABC",
       "criacao": "27/03/2025",
-      "manutencoes": [
-        {
-          "id": "1",
-          "data": "27/03/25 - 14:22:00",
-          "funcionario": "funcionario 1",
-          "conjunto": "Teste",
-          "tag": "Teste",
-          "trocas": "Eixo;Mancal;Rolamento",
-          "fotos": []
-        }
-      ]
+      "manutencoes": []
     },
     {
       "id": 3,

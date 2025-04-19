@@ -8,6 +8,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import HomeScreen from '../screens/HomeScreen'
 import LoginScreen from '../screens/LoginScreen';
 import ConfigScreen from '../screens/ConfigScreen';
+import ManutencaoScreen from '../screens/ManutencaoScreen';
+import EquipamentoScreen from '../screens/EquipamentoScreen';
 import MembrosScreen from '../screens/MembrosScreen';
 import ClienteScreen from '../screens/ClienteScreen';
 import VerManutencaoScreen from '../screens/VerManutencaoScreen';
@@ -102,8 +104,9 @@ function ClienteStackScreen() {
   return(
     <ClienteStack.Navigator screenOptions={{ headerShown: false}}>
       <ClienteStack.Screen name="Cliente" component={ClienteScreen} />
-      <ClienteStack.Screen name="VerManutencao" component={VerManutencaoScreen} />
+      <ClienteStack.Screen name="VerManutencao" component={ManutencaoScreen} />
       <ClienteStack.Screen name="CriarManutencao" component={CriarManutencaoScreen} />
+      <ClienteStack.Screen name="VerEquipamento" component={EquipamentoScreen} />
     </ClienteStack.Navigator>
   )
 }

@@ -28,8 +28,18 @@ export const getManutencaoTemplate = () => {
       "id": 0,
       "data": "",
       "funcionario": "",
-      "conjunto": "",
-      "tag": "",
+      "equipamentos": []
+    }
+  )
+}
+
+export const getEquipamentoTemplate = () => {
+  return(
+    {
+      "id": 0,
+      "data": "",
+      "nome": "",
+      "descricao": "",
       "trocas": "",
       "fotos": []
     }
@@ -40,10 +50,8 @@ export const getFotoTemplate = () => {
   return(
     {
       "id": 0,
-      "fotoAntes": "",
-      "legendaAntes": "",
-      "fotoDepois": "",
-      "legendaDepois": ""
+      "nome": "",
+      "foto": ""
     }
   )
 }

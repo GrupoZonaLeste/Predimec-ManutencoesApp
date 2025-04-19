@@ -52,6 +52,7 @@ const ClienteScreen = ({route}) => {
     })
   }
 
+  /*
   const goToCriarManutencao = (id) => {
     navigation.navigate('ClienteStack', {
       screen: 'CriarManutencao',
@@ -60,10 +61,44 @@ const ClienteScreen = ({route}) => {
       }
     })
   }
+  */
 
   // modo de edição
   const [isEditMode, setIsEditMode] = useState(false)
   const [novoNome, setNovoNome] = useState("")
+
+  const criarManutencao = () => {
+    let listaManutencoes = clienteObj.manutencoes
+
+    // criando id da nova manutencao
+    let newId = 0;
+    if(listaManutencoes.length > 0){
+      const ultimoId = listaManutencoes[listaManutencoes.length - 1].id
+
+      if(ultimoId){
+        newId = parseInt(ultimoId) + 1
+      } 
+    } else {
+      newId = parseInt(1)
+    }
+
+    const novaManutencao = {
+      "id": newId,
+      "data": new Date(Date.now()).toLocaleString(),
+      "funcionario": usuario.nome,
+      "equipamentos": []
+    }
+
+    clienteObj.manutencoes.push(novaManutencao)
+
+    navigation.navigate("ClienteStack", {
+      screen: "VerManutencao",
+      params: {
+        id_cliente: clienteObj.id,
+        id_manutencao: newId
+      }
+    })
+  }
 
   const salvarAlteracao = () => {
     let novoClienteObj = {...clienteObj, "nome": novoNome}
@@ -162,7 +197,7 @@ const ClienteScreen = ({route}) => {
         <Button 
           title='Nova Manutenção' 
           containerStyle={{width: '100%', marginVertical: spacing.medium}}
-          onPress={() => goToCriarManutencao(id)}
+          onPress={() => criarManutencao()}
         />
       </View>
 

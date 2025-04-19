@@ -431,14 +431,6 @@ const styles = StyleSheet.create({
     padding: spacing.medium,
     marginVertical: spacing.small
   },
-  floatingButton: {
-    height: 40, 
-    bottom: 0,
-    width: "90%",
-    backgroundColor: 'green',
-    position: 'absolute',
-    zIndex: 2
-  }
 })
 
 export default VerManutencaoScreen
