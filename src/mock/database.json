@@ -1,30 +1,73 @@
 {
-  "Funcionarios": [],
   "Clientes": [
     {
       "id": 1,
       "nome": "Cliente ABC",
-      "criacao": "11/11/11",
-      "manutencoes": []
+      "criacao": "13/02/2025",
+      "manutencoes": [
+        {
+          "id": 1,
+          "data": "13/02/2025 11:33:21",
+          "funcionario": "funcionario 1",
+          "equipamentos": [
+            {
+              "id": 1,
+              "data": "13/02/2025",
+              "nome": "Equipamento 01",
+              "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id maximus metus. Proin id orci elit. Curabitur suscipit iaculis pharetra. Curabitur vel auctor ligula, laoreet lobortis lorem. Etiam suscipit eu velit id condimentum",
+              "trocas": "Polia;Mancal;Rolamento;Fonte",
+              "fotos": [
+                {
+                  "id": 1,
+                  "nome": "Foto-17042025-193022",
+                  "foto": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+                },
+                {
+                  "id": 2,
+                  "nome": "Foto-17042025-193422",
+                  "foto": "iVBORw0KGgoAAAANSUhEUgAAAAgAAAAIAQMAAAD+wSzIAAAABlBMVEX///+/v7+jQ3Y5AAAADklEQVQI12P4AIX8EAgALgAD/aNpbtEAAAAASUVORK5CYII"
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": 2,
       "nome": "Empresa ABC",
-      "criacao": "11/11/11",
+      "criacao": "27/03/2025",
       "manutencoes": []
     },
     {
       "id": 3,
       "nome": "Cliente XYZ",
-      "criacao": "11/11/11",
+      "criacao": "13/02/2025",
       "manutencoes": []
     },
     {
       "id": 4,
       "nome": "Empresa QWERTY",
-      "criacao": "11/11/11",
+      "criacao": "13/02/2025",
       "manutencoes": []
     }
   ],
-  "Membros": []
+  "Membros": [
+    {
+      "id": 1,
+      "data": "13/04/2025",
+      "nome": "Admin",
+      "tipo": "admin",
+      "login": "admin@admin.com",
+      "senha": "admin"
+    },
+    {
+      "id": 2,
+      "data": "13/04/2025",
+      "nome": "Funcionário 1",
+      "tipo": "funcionario",
+      "login": "abc@abc.com",
+      "senha": "12341234"
+    }
+  ]
 }

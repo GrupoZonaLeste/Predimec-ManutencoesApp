@@ -1,29 +1,62 @@
-import { View, Text, StyleSheet, Image, StatusBar, ScrollView } from 'react-native'
-import { useNavigation } from '@react-navigation/native';
+import {useState, useEffect} from 'react'
+import { View, Text, StyleSheet, Image, StatusBar, ScrollView, FlatList, RefreshControl} from 'react-native'
+import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
 import database from '../mock/database.json'
 import CardSmallManutencao from '../components/CardSmallManutencao'
 import ButtonAdd from '../components/ButtonAdd';
 import CardCliente from '../components/CardCliente';
+import CriarClienteModal from '../modals/CriarClienteModal'
+import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
+import { getClienteTemplate } from '../mock/objectTemplates';
 
 const HomeScreen = () => {
   const navigation = useNavigation()
+  const [listaClientes, setListaClientes] = useState(getClienteTemplate())
 
-  const goToClientePage = (id, nome) => {
+  // estado e função para efetuar recarregamento de lista
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      setListaClientes(database.Clientes)
+      setRefreshing(false)
+    }, 500)
+  }
+
+  // navegação
+  const goToClientePage = (id) => {
     navigation.navigate('ClienteStack',{
       screen: 'Cliente',
       params: {
-        id: id,
-        nome: nome
+        id: id
       }
     })
   }
 
+  // modal de criar cliente
+  const [modalCriarCliente, setModalCriarCliente] = useState(false)
+
+  const toggleModal = () => {
+    setModalCriarCliente(!modalCriarCliente)
+  }
+
+  // Renderização da lista e re-render
+  const focused = useIsFocused()
+
+  useEffect(() => {
+    setListaClientes(database.Clientes)
+  }, [focused, modalCriarCliente])
+
   return(
     <View style={styles.mainContainer}>
+      <CriarClienteModal modalVisible={modalCriarCliente} setModalVisible={setModalCriarCliente} />
+
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'center'}}>
         <Logomarca />
       </View>
@@ -41,17 +74,44 @@ const HomeScreen = () => {
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', padding: spacing.xlarge}}>
         <View style={[{flex: 'auto'}, styles.clientesHeader]}>
           <Text style={[styles.titulo, {textAlign: 'left'}]}>Todos os Clientes</Text>
-          <ButtonAdd />
+          <ButtonAdd onPress={toggleModal}/>
         </View>
-        <ScrollView style={[{flex: 1}, styles.clientesContainer]} persistentScrollbar={true}>
-          {database.Clientes.map((item) => {
-            return(
-              <CardCliente key={item.id} nome={item.nome} onPress={() => goToClientePage(item.id, item.nome)}/>
-            )
-          })
-
-          }
-        </ScrollView>
+        {listaClientes.length == 0 ? (
+          <>
+            <ScrollView 
+              style={[{flex: 1}, shadow, styles.nenhumClienteContainer]}
+              contentContainerStyle={{height: '100%', alignItems: 'center', justifyContent: 'center'}}
+              refreshControl={
+                <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+              }
+            >
+              <Image 
+                style={styles.imgNenhumCliente}
+                source={require('../../assets/images/imagem_nenhum_cliente.png')} 
+              />
+              <Text style={styles.textoNenhumCliente}>Não há clientes cadastrados</Text>
+            </ScrollView>
+            <Text style={styles.dicaLista}>Puxe a lista para baixo para recarregar</Text>
+          </>
+        ) : (
+          <>
+            <FlatList style={[{flex: 1}, shadow, styles.clientesContainer]} persistentScrollbar={true}
+              data={listaClientes}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <CardCliente
+                  nome={item.nome}
+                  onPress={() => goToClientePage(item.id)}
+                />
+              )}
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+            />
+            <Text style={styles.dicaLista}>Puxe a lista para baixo para recarregar</Text>
+          </>
+          
+        )}
+        
       </View>
       
     </View>
@@ -103,6 +163,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between', 
     marginVertical: spacing.medium,
   },
+  dicaLista: {
+    fontFamily: 'Inter-Regular',
+    fontSize: 12
+  },
   clientesContainer: {
     width: "100%",
     backgroundColor: colors.white,
@@ -111,6 +175,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.large,
     borderColor: colors.gray,
     borderRadius: 8,
+  },
+  nenhumClienteContainer: { 
+    width: '100%', 
+    backgroundColor: colors.white,
+    margin: spacing.medium,
+    borderWidth: 1,
+    paddingHorizontal: spacing.large,
+    borderColor: colors.gray,
+    borderRadius: 8,
+  },
+  imgNenhumCliente: {
+    width: 556 / 4,
+    height: 512 / 4,
+    opacity: 0.8,
+    marginVertical: spacing.medium,
+  },
+  textoNenhumCliente: {
+    color: colors.darkGray,
+    fontFamily: 'Inter-Regular',
+    fontSize: fontSizes.medium,
+    width: '75%',
+    textAlign: 'center',
+    marginVertical: spacing.medium,
   }
 })
 

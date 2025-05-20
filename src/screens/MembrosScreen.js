@@ -1,68 +1,65 @@
-import React, {useEffect, useState} from 'react'
-import { View, Text, StyleSheet, StatusBar, ScrollView } from 'react-native'
-import { useNavigation } from '@react-navigation/native';
+import React, {useState, useEffect, useContext} from 'react'
+import { View, Text, StyleSheet, StatusBar, ScrollView, Image, FlatList, RefreshControl} from 'react-native'
+import { useIsFocused} from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
 import Button from '../components/Button';
 import CardFuncionario from '../components/CardFuncionario';
-import CriarMembroModal from '../modals/CriarMembroModal'
+import CriarMembroModal from '../modals/CriarMembroModal';
+import database from '../mock/database.json'
 import EditarMembroModal from '../modals/EditarMembroModal';
+import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
-
-import urlapi from '../utils/devconfig'
-import ConfigScreen from './ConfigScreen';
+import { AuthContext } from '../contexts/AuthContext';
 
 const MembrosScreen = () => {
+  const { usuario } = useContext(AuthContext)
   const [modalNovoMembro, setModalNovoMembro] = useState(false)
   const [modalEditarMembro, setModalEditarMembro] = useState(false)
-
+  const [updateFlag, setUpdateFlag] = useState(0)
   
+  const [listaMembros, setListaMembros] = useState([])
+  const [membroId, setMembroId] = useState(0)
+
+  // estado e função para efetuar recarregamento de lista
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      let listaMembros = database.Membros.filter(item => item.id != usuario.id)
+      listaMembros = listaMembros.filter(item => item.tipo != 'admin')
+      setListaMembros(listaMembros)
+      setRefreshing(false)
+    }, 500)
+  }
+
   const toggleModalNovoMembro = () => {
     setModalNovoMembro(!modalNovoMembro)
   }
-  
-  const [oldNome, setOldNome] = useState()
-  const [oldLogin, setOldLogin] = useState()
-  const [oldSenha, setOldSenha] = useState()
-  const [dadosMembro, setDadoMembro] = useState([])
-  const [updateFlag, setUpdateFlag] = useState(0);
 
-  const toggleModalEditarMembro = (nome, login, senha) => {
-    setOldNome(nome)
-    setOldLogin(login)
-    setOldSenha(senha)
+  const toggleModalEditarMembro = (id) => {
+    setMembroId(id)
     setModalEditarMembro(!modalEditarMembro)
   }
 
   useEffect(() => {
-    const pegarDados = async () => {   
-        let resposta = await fetch(`${urlapi.urlapi}/listar-membros`, {
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              'Content-type': 'application/json'        
-            }
-        })
-        let dados = await resposta.json() 
-        setDadoMembro(Object.entries(dados))
-    }
-    pegarDados()
-  }, [updateFlag])
+    let listaMembros = database.Membros.filter(item => item.id != usuario.id)
+    setListaMembros(listaMembros)
+  }, [modalNovoMembro, updateFlag])
 
-  const forcarAtualizacao = () => {
-    setUpdateFlag(prev => prev + 1); 
-  };
   return(
     <View style={styles.mainContainer}>
       <Button title='FA' onPress={forcarAtualizacao}></Button>
       <CriarMembroModal modalVisible={modalNovoMembro} setModalVisible={setModalNovoMembro} />
       <EditarMembroModal 
         modalVisible={modalEditarMembro} 
-        setModalVisible={setModalEditarMembro} 
-        oldLogin={oldLogin} 
-        oldNome={oldNome}
-        oldSenha={oldSenha}
+        setModalVisible={setModalEditarMembro}
+        updateFlag={updateFlag}
+        setUpdateFlag={setUpdateFlag} 
+        membroId={membroId}
       />
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
@@ -75,22 +72,40 @@ const MembrosScreen = () => {
       </View>
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
-        <ScrollView style={[{flex: 1}, styles.manutenContainer]} persistentScrollbar={true}>
-          {
-            dadosMembro.map((element) => {
-              return(
-                <CardFuncionario
-                key={element[0]}
-                nome={element[1].nome} 
-                login={element[1].email} 
-                senha={element[1].senha}
-                dataCriacao={element[1].datacriacao} 
-                toggleModal={() => toggleModalEditarMembro(element[1].nome, element[1].email, element[1].senha)}
-                />
-              )
-            })
-          }
-        </ScrollView>
+        {listaMembros == 0 ? (
+          <ScrollView 
+            style={[{flex: 1}, shadow, styles.nenhumMembroContainer]}
+            contentContainerStyle={{height: '100%', alignItems: 'center', justifyContent: 'center'}}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+            }  
+          >
+            <Image 
+              style={styles.imgNenhumMembro}
+              source={require('../../assets/images/imagem_nenhum_membro.png')} 
+            />
+            <Text style={styles.textoNenhumMembro}>Ainda não há membros cadastrados</Text>
+          </ScrollView>
+        ) : (
+          <FlatList style={[{flex: 1}, shadow,styles.funcionariosContainer]} persistentScrollbar={true} 
+            data={listaMembros}
+            keyExtractor={(item) => item.id.toString()}
+            renderItem={({item}) => (
+              <CardFuncionario
+                id={item.id}
+                data={item.data}
+                nome={item.nome}
+                login={item.login}
+                senha={item.senha}
+                toggleModal={() => toggleModalEditarMembro(item.id)}
+                setUpdateFlag={setUpdateFlag}
+              />
+            )}
+            refreshing={refreshing}
+            onRefresh={handleRefresh}
+          />
+        )}
+        
       </View>
     </View>
   )
@@ -110,7 +125,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-Bold',
     fontSize: fontSizes.xlarge,
   },
-  manutenContainer: {
+  funcionariosContainer: {
     width: "100%",
     backgroundColor: colors.white,
     margin: spacing.medium,
@@ -118,6 +133,29 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.large,
     borderColor: colors.gray,
     borderRadius: 8,
+  },
+  nenhumMembroContainer: { 
+    width: '100%', 
+    backgroundColor: colors.white,
+    margin: spacing.medium,
+    borderWidth: 1,
+    paddingHorizontal: spacing.large,
+    borderColor: colors.gray,
+    borderRadius: 8,
+  },
+  imgNenhumMembro: {
+    width: 512 / 4,
+    height: 512 / 4,
+    opacity: 0.8,
+    marginVertical: spacing.medium,
+  },
+  textoNenhumMembro: {
+    color: colors.darkGray,
+    fontFamily: 'Inter-Regular',
+    fontSize: fontSizes.medium,
+    width: '75%',
+    textAlign: 'center',
+    marginVertical: spacing.medium,
   }
 })
 

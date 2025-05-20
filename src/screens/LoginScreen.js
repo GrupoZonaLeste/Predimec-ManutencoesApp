@@ -1,59 +1,45 @@
-import {View, Text, StyleSheet, Image, StatusBar, Alert} from 'react-native'
-import { useState } from 'react';
+import {View, Text, StyleSheet, StatusBar, Alert} from 'react-native'
 import { useNavigation } from '@react-navigation/native';
-import Logo from '../../assets/logo/logo-completa.png'
+import Logomarca from '../components/Logomarca';
 import Button from '../components/Button'
 import TextInput from '../components/TextInput';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
-
-import urlapi from '../utils/devconfig'
+import { AuthContext } from '../contexts/AuthContext';
+import { useContext, useEffect, useState } from 'react';
 
 const LoginScreen = () => {
-  const [login, setLogin] = useState('')
-  const [senha, setSenha] = useState('')
+  const { login } = useContext(AuthContext)
 
-  const navigation = useNavigation();
-  
-  const goToHomepage = async () => {
-    if(login == '' || senha == ''){
-      Alert.alert("ERRO", "Preencha todos os campos")
-      return
+  const [loginUser, setLoginUser] = useState('')
+  const [senhaUser, setSenhaUser] = useState('')
+
+  const handleLogin = async () => {
+    try{
+      if(!loginUser || !senhaUser){
+        Alert.alert('Erro', 'Preencha todos os campos');
+        return;
+      }
+
+      login(loginUser, senhaUser)
+    }catch(e){
+      Alert.alert("Erro de Login", "Login ou senha invalidos")
     }
-    await fetch(`${urlapi.urlapi}/login`, {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-type': 'application/json'        
-      },
-      body: JSON.stringify({
-        login: login,
-        senha: senha
-      })
-    })
-    .then(res => res.json())
-    .then(res => {
-      if( res.tipo == "admin") {
-        Alert.alert("Sucesso", "Logado como admin!")
-        navigation.navigate('HomeTabs', {screen: 'Home'})
-      } 
-      if( res.tipo == "membro" ) {
-        Alert.alert("Sucesso", "Logado como membro!")
-        navigation.navigate('HomeTabs', {screen: 'Home'})
-      }
-      if( res.mensagem == "usuario não encontrado"){
-        Alert.alert("Erro", "Usuário não encontrado!")
-      }
-    })
-    
-    
   }
+
+  useEffect(() => {
+    Alert.alert("Info para Login",
+                  "ADMIN\nLogin: admin@admin.com\nSenha: admin\n\n"+
+                  "FUNCIONARIO\nLogin: abc@abc.com\nSenha: 12341234")
+    
+  }, [])
+  
   
   return(
     <View style={styles.mainContainer}>
       <View style={{flex: 0.4, width: '100%', alignItems: 'center', justifyContent: 'center'}}>
-        <Image style={styles.logo} source={require('../../assets/logo/logo-completa.png')}/>
+        <Logomarca />
       </View>
 
       <View style={{flexGrow: 1, width: '100%', alignItems: 'center', padding: spacing.medium}}> 
@@ -62,12 +48,20 @@ const LoginScreen = () => {
 
         <View style={[styles.loginContainer, styles.elevation]}>
           <Text style={[styles.texto, styles.inputMargin]}>Login</Text>
-          <TextInput placeholder="Digite o login" style={styles.inputMargin} onChangeText={text => setLogin(text)}/>
+          <TextInput 
+            placeholder="Digite o login" 
+            style={styles.inputMargin}
+            onChangeText={setLoginUser}
+          />
 
           <Text style={[styles.texto, styles.inputMargin]}>Senha</Text>
-          <TextInput placeholder="Digite a senha" style={styles.inputMargin} password={true} onChangeText={text => setSenha(text)}/>
+          <TextInput 
+            placeholder="Digite a senha" style={styles.inputMargin} 
+            password={true}
+            onChangeText={setSenhaUser}
+          />
 
-          <Button title="Fazer Login" containerStyle={styles.buttonStyle} onPress={async () => await goToHomepage()}/>
+          <Button title="Fazer Login" containerStyle={styles.buttonStyle} onPress={handleLogin}/>
         </View>
       </View>
       
