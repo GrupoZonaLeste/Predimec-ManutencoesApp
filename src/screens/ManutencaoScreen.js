@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, StatusBar, FlatList, Alert, RefreshControl, Image, ScrollView } from "react-native"
 import { useNavigation, useIsFocused } from "@react-navigation/native"
 import ButtonBack from '../components/ButtonBack';
@@ -14,9 +14,13 @@ import { AuthContext } from '../contexts/AuthContext';
 import { shadow } from '../constants/Effects';
 import { getClienteTemplate, getManutencaoTemplate } from '../mock/objectTemplates';
 
-const ManutencaoScreen = ({route}) => {
+import get_endpoint from '../../endpoints/endpoints'
+
+const ManutencaoScreen = ({ route }) => {
+  const relatorioendpoint = get_endpoint("relatorio")
+  console.log(relatorioendpoint)
   const { usuario } = useContext(AuthContext)
-  const { id_cliente, id_manutencao} = route.params
+  const { id_cliente, id_manutencao } = route.params
 
   const [clienteObj, setClienteObj] = useState(getClienteTemplate())
   const [manutencaoObj, setManutencaoObj] = useState(getManutencaoTemplate())
@@ -56,7 +60,7 @@ const ManutencaoScreen = ({route}) => {
     Alert.alert("", "A manutenção foi deletada com sucesso")
     navigation.goBack()
   }
-  
+
   const confirmarDeletar = () => {
     Alert.alert(
       '',
@@ -64,7 +68,7 @@ const ManutencaoScreen = ({route}) => {
       [
         {
           text: 'Cancelar',
-          onPress: () => {},
+          onPress: () => { },
           style: 'cancel',
         },
         {
@@ -83,17 +87,17 @@ const ManutencaoScreen = ({route}) => {
 
     // criando id da nova manutencao
     let newId = 0;
-    if(listaEquipamentos.length > 0){
+    if (listaEquipamentos.length > 0) {
       const ultimoId = listaEquipamentos[listaEquipamentos.length - 1].id
 
-      if(ultimoId){
+      if (ultimoId) {
         newId = parseInt(ultimoId) + 1
-      } 
+      }
     } else {
       newId = parseInt(1)
     }
 
-    const novoEquipamento  = {
+    const novoEquipamento = {
       "id": newId,
       "nome": "Novo Equipamento",
       "data": new Date(Date.now()).toLocaleDateString('pt-BR'),
@@ -105,6 +109,33 @@ const ManutencaoScreen = ({route}) => {
     manutencaoObj.equipamentos.push(novoEquipamento)
 
     goToVerEquipamento(newId)
+  }
+
+  //GERANDO RELATÓRIO PARA TESTES
+  const gerarRelatorio = () => {
+    console.log("teste")
+    fetch(relatorioendpoint, {
+      method: 'POST',
+      body: JSON.stringify({
+        "cliente": "clienteabc",
+        "data": "00/00/0000",
+        "conclusao": "abcdefg",
+        "equipamentos": [
+          {
+            "nome": "FC-01",
+            "descricao": "fan coil da sala de máquinas",
+            "foto": ["imgpath", "img-01"],
+            "trocas": ["polia", "rolamento do motor"]
+          },
+          {
+            "nome": "FC-02",
+            "descricao": "fan coil 2 da sala de máquinas",
+            "foto": ["imgpath", "img-01"],
+            "trocas": ["polia", "rolamento do motor"]
+          }
+        ]
+      }).then(res => res.text()).then(res => console.log(res))
+    })
   }
 
   // função carregar dados
@@ -120,54 +151,54 @@ const ManutencaoScreen = ({route}) => {
 
   useEffect(() => {
     carregadorDados()
-  },[focused])
+  }, [focused])
 
-  return(
+  return (
     <View style={styles.mainContainer}>
 
-      <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
-        <ButtonBack onPress={() => navigation.goBack()}/>
-        <View style={{flex: 'auto', flexDirection: 'row-reverse', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
-          <ButtonDelete onPress={confirmarDeletar}/>
+      <View style={{ flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
+        <ButtonBack onPress={() => navigation.goBack()} />
+        <View style={{ flex: 'auto', flexDirection: 'row-reverse', width: '30%', alignItems: 'center', justifyContent: 'space-between' }}>
+          <ButtonDelete onPress={confirmarDeletar} />
         </View>
       </View>
 
-      <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
+      <View style={{ flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start' }}>
         <Text style={styles.nomeManutencao}>{manutencaoObj.data}</Text>
         <Text numberOfLines={1} style={styles.nomeFuncionario}>{manutencaoObj.funcionario}</Text>
-        <Button 
+        <Button
           title='Novo Equipamento'
-          containerStyle={{width: '100%', marginVertical: spacing.medium}}
+          containerStyle={{ width: '100%', marginVertical: spacing.medium }}
           onPress={criarEquipamento}
         />
-        <Divider/>
+        <Divider />
       </View>
 
-      <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
+      <View style={{ flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start' }}>
         <Text style={styles.tituloSecao}>Equipamentos</Text>
 
         {manutencaoObj.equipamentos.length == 0 ? (
-          <ScrollView 
-            style={[{flex: 1}, shadow, styles.nenhumEquipContainer]} 
-            contentContainerStyle={{height: '100%', alignItems: 'center', justifyContent: 'center'}}
+          <ScrollView
+            style={[{ flex: 1 }, shadow, styles.nenhumEquipContainer]}
+            contentContainerStyle={{ height: '100%', alignItems: 'center', justifyContent: 'center' }}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
             }
           >
-            <Image 
+            <Image
               style={styles.imgNenhumEquip}
-              source={require('../../assets/images/imagem_nenhum_equipamento.png')} 
+              source={require('../../assets/images/imagem_nenhum_equipamento.png')}
             />
             <Text style={styles.textoNenhumEquip}>Não há equipamentos cadastrados</Text>
           </ScrollView>
         ) : (
-          <FlatList 
+          <FlatList
             data={manutencaoObj.equipamentos}
-            style={[{flex: 1}, shadow, styles.equipamentosContainer]}
-            contentContainerStyle={{paddingVertical: spacing.small}}
+            style={[{ flex: 1 }, shadow, styles.equipamentosContainer]}
+            contentContainerStyle={{ paddingVertical: spacing.small }}
             keyExtractor={(item) => item.id}
-            renderItem={({item}) => (
-              <CardEquipamento 
+            renderItem={({ item }) => (
+              <CardEquipamento
                 id={item.id}
                 nome={item.nome}
                 criacao={item.data}
@@ -179,17 +210,18 @@ const ManutencaoScreen = ({route}) => {
             showsVerticalScrollIndicator={true}
           />
         )}
-        
-        
-       
 
-        <Divider/>
+
+
+
+        <Divider />
       </View>
 
-      <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
-        <Button 
+      <View style={{ flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start' }}>
+        <Button
           title='Gerar Relatório'
-          containerStyle={{width: '100%', marginVertical: spacing.medium}}
+          containerStyle={{ width: '100%', marginVertical: spacing.medium }}
+          onPress={() => gerarRelatorio()}
         />
       </View>
     </View>
@@ -240,8 +272,8 @@ const styles = StyleSheet.create({
     borderColor: colors.gray,
     borderRadius: 8,
   },
-  nenhumEquipContainer: { 
-    width: '100%', 
+  nenhumEquipContainer: {
+    width: '100%',
     backgroundColor: colors.white,
     margin: spacing.medium,
     borderWidth: 1,
