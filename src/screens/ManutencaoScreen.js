@@ -14,11 +14,8 @@ import { AuthContext } from '../contexts/AuthContext';
 import { shadow } from '../constants/Effects';
 import { getClienteTemplate, getManutencaoTemplate } from '../mock/objectTemplates';
 
-import get_endpoint from '../../endpoints/endpoints'
-
 const ManutencaoScreen = ({ route }) => {
-  const relatorioendpoint = get_endpoint("relatorio")
-  console.log(relatorioendpoint)
+  const relatorioendpoint = "http://192.168.0.107:3000/relatorio"
   const { usuario } = useContext(AuthContext)
   const { id_cliente, id_manutencao } = route.params
 
@@ -102,7 +99,7 @@ const ManutencaoScreen = ({ route }) => {
       "nome": "Novo Equipamento",
       "data": new Date(Date.now()).toLocaleDateString('pt-BR'),
       "descricao": "",
-      "trocas": "",
+      "trocas": [],
       "fotos": []
     }
 
@@ -112,30 +109,20 @@ const ManutencaoScreen = ({ route }) => {
   }
 
   //GERANDO RELATÓRIO PARA TESTES
+
   const gerarRelatorio = () => {
-    console.log("teste")
     fetch(relatorioendpoint, {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        "cliente": "clienteabc",
-        "data": "00/00/0000",
-        "conclusao": "abcdefg",
-        "equipamentos": [
-          {
-            "nome": "FC-01",
-            "descricao": "fan coil da sala de máquinas",
-            "foto": ["imgpath", "img-01"],
-            "trocas": ["polia", "rolamento do motor"]
-          },
-          {
-            "nome": "FC-02",
-            "descricao": "fan coil 2 da sala de máquinas",
-            "foto": ["imgpath", "img-01"],
-            "trocas": ["polia", "rolamento do motor"]
-          }
-        ]
-      }).then(res => res.text()).then(res => console.log(res))
-    })
+        "cliente": clienteObj.nome,
+        "data": manutencaoObj.data,
+        "conclusao": "conclusão teste.",
+        "equipamentos": manutencaoObj.equipamentos
+      })
+    }).then(res => res.text()).then(res => console.log(res))
   }
 
   // função carregar dados
@@ -221,7 +208,7 @@ const ManutencaoScreen = ({ route }) => {
         <Button
           title='Gerar Relatório'
           containerStyle={{ width: '100%', marginVertical: spacing.medium }}
-          onPress={() => gerarRelatorio()}
+          onPress={gerarRelatorio}
         />
       </View>
     </View>

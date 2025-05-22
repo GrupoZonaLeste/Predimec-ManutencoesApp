@@ -52,7 +52,6 @@ const MembrosScreen = () => {
 
   return(
     <View style={styles.mainContainer}>
-      <Button title='FA' onPress={forcarAtualizacao}></Button>
       <CriarMembroModal modalVisible={modalNovoMembro} setModalVisible={setModalNovoMembro} />
       <EditarMembroModal 
         modalVisible={modalEditarMembro} 

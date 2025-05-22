@@ -65,23 +65,13 @@ const EquipamentoScreen = ({route}) => {
 
   // Salvar mudanças
   const salvarAlterações = () => {
-    let string_trocas = ""
-
-    // montando a string das trocas 
-    for(let i = 0; i < equipTrocas.length; i++){
-      if(i == (equipTrocas.length - 1)){
-        string_trocas += equipTrocas[i] // se for o ultimo elemento nn precisa de ;
-      } else {
-        string_trocas += equipTrocas[i]+";"
-      }
-    }
 
     const equipamentoAtualizado = {
       "id": id_equipamento,
       "data": equipData,
       "nome": equipNome,
       "descricao": equipDesc,
-      "trocas": string_trocas,
+      "trocas": equipTrocas,
       "fotos": equipFotos
     }
 
@@ -158,23 +148,15 @@ const EquipamentoScreen = ({route}) => {
     setEquipNome(equipamento.nome)
     setEquipDesc(equipamento.descricao)
     setEquipFotos(equipamento.fotos)
-
-    let listaTrocas
-    if(equipamento.trocas === ""){
-      listaTrocas = []
-    } else {
-      listaTrocas = equipamento.trocas.split(";")  
-    }
-
-    setEquipTrocas(listaTrocas)
+    setEquipTrocas(equipamento.trocas)
 
     // Se ja há trocas feitas dentro do equipamento, não há necessidade de adicionar os chips das trocas padrão
     if(equipamento.trocas.length > 1){
-      setListaChips(listaTrocas)
+      setListaChips(equipamento.trocas)
     } else {
       let listaTrocasPadrao = ["Eixo", "Mancal", "Polia", "Rolamento"]
 
-      let listaUnificada = unirListas(listaTrocas, listaTrocasPadrao)
+      let listaUnificada = unirListas(equipamento.trocas, listaTrocasPadrao)
       setListaChips(listaUnificada)
     }
   }
