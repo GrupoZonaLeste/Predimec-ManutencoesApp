@@ -12,8 +12,6 @@ import ManutencaoScreen from '../screens/ManutencaoScreen';
 import EquipamentoScreen from '../screens/EquipamentoScreen';
 import MembrosScreen from '../screens/MembrosScreen';
 import ClienteScreen from '../screens/ClienteScreen';
-import VerManutencaoScreen from '../screens/VerManutencaoScreen';
-import CriarManutencaoScreen from '../screens/CriarManutencaoScreen';
 import { AuthContext, AuthProvider } from '../contexts/AuthContext';
 import { colors } from '../constants/Colors'
 import { useContext, useEffect, useState } from 'react';
@@ -105,7 +103,6 @@ function ClienteStackScreen() {
     <ClienteStack.Navigator screenOptions={{ headerShown: false}}>
       <ClienteStack.Screen name="Cliente" component={ClienteScreen} />
       <ClienteStack.Screen name="VerManutencao" component={ManutencaoScreen} />
-      <ClienteStack.Screen name="CriarManutencao" component={CriarManutencaoScreen} />
       <ClienteStack.Screen name="VerEquipamento" component={EquipamentoScreen} />
     </ClienteStack.Navigator>
   )
@@ -128,7 +125,7 @@ export default function Routes(){
 
   return(
     <>
-      <StatusBar backgroundColor='#000' style='light' />
+      <StatusBar backgroundColor={colors.white} style='dark' />
       <NavigationContainer>
         <RootStack.Navigator screenOptions={{ headerShown: false}}>
           {isLoggedIn ? (

@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { View, Text, StyleSheet, StatusBar, FlatList, Alert, RefreshControl, Image, ScrollView } from "react-native"
 import { useNavigation, useIsFocused } from "@react-navigation/native"
 import ButtonBack from '../components/ButtonBack';
 import ButtonDelete from '../components/ButtonDelete';
 import CardEquipamento from '../components/CardEquipamento';
 import Divider from '../components/Divider';
-import database from '../mock/database.json'
 import { fontSizes } from '../constants/Fonts'
 import { spacing } from '../constants/Spacing'
 import { colors } from '../constants/Colors'
@@ -13,52 +12,57 @@ import Button from '../components/Button';
 import { AuthContext } from '../contexts/AuthContext';
 import { shadow } from '../constants/Effects';
 import { getClienteTemplate, getManutencaoTemplate } from '../mock/objectTemplates';
+import { formatarData } from '../utils/conversorData';
 
-import get_endpoint from '../../endpoints/endpoints'
+import { MANUTENCAO_ROUTES } from '../api/endpoints';
+import { EQUIPAMENTO_ROUTES } from '../api/endpoints';
 
-const ManutencaoScreen = ({ route }) => {
-  const relatorioendpoint = get_endpoint("relatorio")
-  console.log(relatorioendpoint)
+const ManutencaoScreen = ({route}) => {
   const { usuario } = useContext(AuthContext)
-  const { id_cliente, id_manutencao } = route.params
+  const { id_manutencao} = route.params
 
   const [clienteObj, setClienteObj] = useState(getClienteTemplate())
   const [manutencaoObj, setManutencaoObj] = useState(getManutencaoTemplate())
 
-  // estado e função para efetuar recarregamento de lista
-  const [refreshing, setRefreshing] = useState(false)
+  // API - Manutencao
+  const buscarManutencaoAPI = async () => {
+    try{
+      const resposta_api = await fetch(MANUTENCAO_ROUTES.GET_ONE_MANUTENCAO(id_manutencao), {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
 
-  const handleRefresh = () => {
-    setRefreshing(true)
-
-    setTimeout(() => {
-      carregadorDados()
-      setRefreshing(false)
-    }, 500)
-  }
-
-  // navegação
-  const navigation = useNavigation()
-
-  const goToVerEquipamento = (id_equipamento) => {
-    let listaManutencoes = clienteObj.manutencoes
-
-    navigation.navigate('ClienteStack', {
-      screen: 'VerEquipamento',
-      params: {
-        lista_manutencoes: listaManutencoes,
-        id_manutencao: id_manutencao,
-        id_equipamento: id_equipamento
+      if(resposta_api.ok){
+        const dados = await resposta_api.json()
+        setManutencaoObj(dados)
+      } else {
+        Alert.alert("Erro", "Erro ao buscar manutenção")
       }
-    })
+    } catch(erro){
+      console.error('Erro ao buscar manutenção:', erro);
+    }
   }
 
-  const deletarManutencao = () => {
-    // FAZER O FETCH COM DELETE AQUI PARA APAGAR A MANUTENCAO
-    let listaAtualizada = clienteObj.manutencoes.filter(item => item.id != id_manutencao)
-    clienteObj.manutencoes = listaAtualizada
-    Alert.alert("", "A manutenção foi deletada com sucesso")
-    navigation.goBack()
+  const deletarManutencaoAPI = async () => {
+    try{
+      const resposta_api = await fetch(MANUTENCAO_ROUTES.DELETE_MANUTENCAO(id_manutencao), {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if(resposta_api.ok){
+        Alert.alert("Sucesso", "Manutenção excluida com sucesso")
+        navigation.goBack()
+      } else {
+        Alert.alert("Erro", "Erro ao excluir manutenção")
+      }
+    } catch(erro){
+      console.error('Erro ao deletar cliente:', erro);
+    }
   }
 
   const confirmarDeletar = () => {
@@ -68,13 +72,13 @@ const ManutencaoScreen = ({ route }) => {
       [
         {
           text: 'Cancelar',
-          onPress: () => { },
+          onPress: () => {},
           style: 'cancel',
         },
         {
           text: 'Confirmar',
           onPress: () => {
-            deletarManutencao()
+            deletarManutencaoAPI()
           },
         },
       ],
@@ -82,126 +86,126 @@ const ManutencaoScreen = ({ route }) => {
     );
   }
 
-  const criarEquipamento = () => {
-    let listaEquipamentos = manutencaoObj.equipamentos
+  // API - Equipamento
+  const criarEquipamentoAPI = async () => {
+    try{
+      const dataAtual = new Date();
 
-    // criando id da nova manutencao
-    let newId = 0;
-    if (listaEquipamentos.length > 0) {
-      const ultimoId = listaEquipamentos[listaEquipamentos.length - 1].id
+      const resposta_api = await fetch(EQUIPAMENTO_ROUTES.POST_EQUIPAMENTO, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data_criacao: dataAtual.toISOString(),
+          nome: "Novo Equipamento",
+          descricao: "",
+          manutencao_id: id_manutencao
+        })
+      })
 
-      if (ultimoId) {
-        newId = parseInt(ultimoId) + 1
+      if(resposta_api.ok){
+        const res = await resposta_api.json()
+        
+        navigation.navigate('ClienteStack', {
+          screen: 'VerEquipamento',
+          params: {
+            id_manutencao: id_manutencao,
+            id_equipamento: res.id
+          }
+        })
+      } else {
+        Alert.alert("Erro", "Erro ao criar equipamento")
       }
-    } else {
-      newId = parseInt(1)
+
+    } catch(erro){
+      Alert.alert("Erro", "Erro ao criar equipamento")
+      console.error('Erro ao criar equipamento:', erro);
     }
-
-    const novoEquipamento = {
-      "id": newId,
-      "nome": "Novo Equipamento",
-      "data": new Date(Date.now()).toLocaleDateString('pt-BR'),
-      "descricao": "",
-      "trocas": "",
-      "fotos": []
-    }
-
-    manutencaoObj.equipamentos.push(novoEquipamento)
-
-    goToVerEquipamento(newId)
   }
 
-  //GERANDO RELATÓRIO PARA TESTES
-  const gerarRelatorio = () => {
-    console.log("teste")
-    fetch(relatorioendpoint, {
-      method: 'POST',
-      body: JSON.stringify({
-        "cliente": "clienteabc",
-        "data": "00/00/0000",
-        "conclusao": "abcdefg",
-        "equipamentos": [
-          {
-            "nome": "FC-01",
-            "descricao": "fan coil da sala de máquinas",
-            "foto": ["imgpath", "img-01"],
-            "trocas": ["polia", "rolamento do motor"]
-          },
-          {
-            "nome": "FC-02",
-            "descricao": "fan coil 2 da sala de máquinas",
-            "foto": ["imgpath", "img-01"],
-            "trocas": ["polia", "rolamento do motor"]
-          }
-        ]
-      }).then(res => res.text()).then(res => console.log(res))
+  // estado e função para efetuar recarregamento de lista
+  const [refreshing, setRefreshing] = useState(false)
+
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      buscarManutencaoAPI()
+      setRefreshing(false)
+    }, 500)
+  }
+
+  // navegação
+  const navigation = useNavigation()
+
+  const goToVerEquipamento = (id_equipamento) => {
+    navigation.navigate('ClienteStack', {
+      screen: 'VerEquipamento',
+      params: {
+        id_equipamento: id_equipamento
+      }
     })
   }
 
-  // função carregar dados
-  const carregadorDados = () => {
-    let cliente = database.Clientes.find(item => item.id == id_cliente)
-    setClienteObj(cliente)
-
-    let manutencao = cliente.manutencoes.find(item => item.id == id_manutencao)
-    setManutencaoObj(manutencao)
-  }
   // Renderizacao e re-render
   const focused = useIsFocused()
 
   useEffect(() => {
-    carregadorDados()
-  }, [focused])
+    buscarManutencaoAPI()
+  },[focused])
 
-  return (
+  return(
     <View style={styles.mainContainer}>
 
-      <View style={{ flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between' }}>
-        <ButtonBack onPress={() => navigation.goBack()} />
-        <View style={{ flex: 'auto', flexDirection: 'row-reverse', width: '30%', alignItems: 'center', justifyContent: 'space-between' }}>
-          <ButtonDelete onPress={confirmarDeletar} />
+      <View style={{flex: 'auto', flexDirection: 'row', width: '100%', alignItems: 'center', justifyContent: 'space-between'}}>
+        <ButtonBack onPress={() => navigation.goBack()}/>
+        <View style={{flex: 'auto', flexDirection: 'row-reverse', width: '30%', alignItems: 'center', justifyContent: 'space-between'}}>
+          <ButtonDelete onPress={confirmarDeletar}/>
         </View>
       </View>
 
-      <View style={{ flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start' }}>
-        <Text style={styles.nomeManutencao}>{manutencaoObj.data}</Text>
-        <Text numberOfLines={1} style={styles.nomeFuncionario}>{manutencaoObj.funcionario}</Text>
-        <Button
+      <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
+        <Text style={styles.nomeManutencao}>{formatarData(manutencaoObj.data_criacao)}</Text>
+        <Text numberOfLines={1} style={styles.nomeFuncionario}>
+          Criador: {manutencaoObj.funcionario}
+        </Text>
+        <Button 
           title='Novo Equipamento'
-          containerStyle={{ width: '100%', marginVertical: spacing.medium }}
-          onPress={criarEquipamento}
+          containerStyle={{width: '100%', marginVertical: spacing.medium}}
+          onPress={criarEquipamentoAPI}
         />
-        <Divider />
+        <Divider/>
       </View>
 
-      <View style={{ flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start' }}>
+      <View style={{flexGrow: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         <Text style={styles.tituloSecao}>Equipamentos</Text>
 
-        {manutencaoObj.equipamentos.length == 0 ? (
-          <ScrollView
-            style={[{ flex: 1 }, shadow, styles.nenhumEquipContainer]}
-            contentContainerStyle={{ height: '100%', alignItems: 'center', justifyContent: 'center' }}
+        {manutencaoObj?.equipamentos?.length == 0 ? (
+          <ScrollView 
+            style={[{flex: 1}, shadow, styles.nenhumEquipContainer]} 
+            contentContainerStyle={{height: '100%', alignItems: 'center', justifyContent: 'center'}}
             refreshControl={
-              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+              <RefreshControl refreshing={refreshing} onRefresh={handleRefresh}/>
             }
           >
-            <Image
+            <Image 
               style={styles.imgNenhumEquip}
-              source={require('../../assets/images/imagem_nenhum_equipamento.png')}
+              source={require('../../assets/images/imagem_nenhum_equipamento.png')} 
             />
             <Text style={styles.textoNenhumEquip}>Não há equipamentos cadastrados</Text>
           </ScrollView>
         ) : (
-          <FlatList
+          <FlatList 
             data={manutencaoObj.equipamentos}
-            style={[{ flex: 1 }, shadow, styles.equipamentosContainer]}
-            contentContainerStyle={{ paddingVertical: spacing.small }}
+            style={[{flex: 1}, shadow, styles.equipamentosContainer]}
+            contentContainerStyle={{paddingVertical: spacing.small}}
             keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-              <CardEquipamento
+            renderItem={({item}) => (
+              <CardEquipamento 
                 id={item.id}
                 nome={item.nome}
-                criacao={item.data}
+                criacao={formatarData(item.data_criacao)}
                 onPress={() => goToVerEquipamento(item.id)}
               />
             )}
@@ -210,18 +214,17 @@ const ManutencaoScreen = ({ route }) => {
             showsVerticalScrollIndicator={true}
           />
         )}
+        
+        
+       
 
-
-
-
-        <Divider />
+        <Divider/>
       </View>
 
-      <View style={{ flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start' }}>
-        <Button
+      <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
+        <Button 
           title='Gerar Relatório'
-          containerStyle={{ width: '100%', marginVertical: spacing.medium }}
-          onPress={() => gerarRelatorio()}
+          containerStyle={{width: '100%', marginVertical: spacing.medium}}
         />
       </View>
     </View>
@@ -272,8 +275,8 @@ const styles = StyleSheet.create({
     borderColor: colors.gray,
     borderRadius: 8,
   },
-  nenhumEquipContainer: {
-    width: '100%',
+  nenhumEquipContainer: { 
+    width: '100%', 
     backgroundColor: colors.white,
     margin: spacing.medium,
     borderWidth: 1,

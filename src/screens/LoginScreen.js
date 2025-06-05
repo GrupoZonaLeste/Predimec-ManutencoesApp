@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, StatusBar, Alert} from 'react-native'
-import { useNavigation } from '@react-navigation/native';
+  import { SafeAreaView } from 'react-native-safe-area-context';
 import Logomarca from '../components/Logomarca';
 import Button from '../components/Button'
 import TextInput from '../components/TextInput';
@@ -37,7 +37,7 @@ const LoginScreen = () => {
   
   
   return(
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
       <View style={{flex: 0.4, width: '100%', alignItems: 'center', justifyContent: 'center'}}>
         <Logomarca />
       </View>
@@ -68,7 +68,7 @@ const LoginScreen = () => {
       <View style={{flex: 0.2, width: '100%', alignItems: 'center', justifyContent: 'center'}}>
         <Text style={styles.texto}>{"Developed by </nomeDoGrupo>"}</Text>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }
 

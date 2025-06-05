@@ -33,6 +33,7 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     borderRadius: 8,
     height: 40,
+    marginVertical: spacing.small
   },
   gradiant: {
     alignSelf: 'stretch',

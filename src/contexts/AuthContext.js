@@ -3,37 +3,53 @@ import { Alert } from 'react-native'
 import database from '../mock/database.json'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { FUNCIONARIO_ROUTES } from '../api/endpoints';
+
 export const AuthContext = createContext({
   usuario: null,
   login: () => {},
   logout: () => {}
 })
 
-export const AuthProvider = ({children}) => {
+export const AuthProvider =  ({children}) => {
   const [usuario, setUsuario] = useState(null)
   
   const login = async (login, senha) => {
-    const membro = database.Membros.find(
-      (m) => m.login === login && m.senha === senha
-    )
-    
-    if(membro){
-      const dadosUsuario = {
-        "id": membro.id, 
-        "nome": membro.nome,
-        "tipo": membro.tipo,
-        "login": membro.login,
-        "senha": membro.senha
-      }
+    try {
+      const resposta_api = await fetch(FUNCIONARIO_ROUTES.POST_LOGIN, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          login: login,
+          senha: senha
+        }),
+      });
 
-      setUsuario(dadosUsuario)
-      await AsyncStorage.setItem('@usuario', JSON.stringify(dadosUsuario))
-    } else {
-      Alert.alert("Erro","Login ou senha inválidos")
-      throw new Error('Login ou senha inválidos');
+      if(resposta_api.ok){
+        const dados = await resposta_api.json()
+        if(dados){
+          const dadosUsuario = {
+            "id": dados.id, 
+            "nome": dados.nome,
+            "tipo": dados.tipo,
+            "login": dados.login,
+            "senha": dados.senha
+          }
+
+          setUsuario(dadosUsuario)
+          await AsyncStorage.setItem('@usuario', JSON.stringify(dadosUsuario))
+        } else {
+          Alert.alert("Erro","Login ou senha inválidos")
+          throw new Error('Login ou senha inválidos');
+        }
+      } else {
+        Alert.alert("Erro","Login ou senha inválidos")
+      }
+    } catch(erro){
+      console.error('Erro ao fazer login:', erro);
     }
-    
-    
   }
 
   const logout = async () => {

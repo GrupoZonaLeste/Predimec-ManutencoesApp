@@ -9,62 +9,89 @@ import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { getMembroTemplate } from '../mock/objectTemplates'
 
+import { FUNCIONARIO_ROUTES } from '../api/endpoints'
+
 const EditarMembroModal = ({modalVisible, setModalVisible, updateFlag, setUpdateFlag, membroId}) => {
   const [membroObj, setMembroObj] = useState(getMembroTemplate())
 
   const [novoNome, setNovoNome] = useState("")
   const [novoLogin, setNovoLogin] = useState("")
   const [novaSenha, setNovaSenha] = useState("")
+  const [tipo, setTipo] = useState("")
 
-  const alterarMembro = () => {
-    let listaMembros = database.Membros
-    // FAZER O POST PRA ALTERAR O MEMBRO
+  // API = Funcionario
+  const buscarFuncionarioAPI = async () => {
+    try {
+      const resposta_api = await fetch(FUNCIONARIO_ROUTES.GET_ONE_FUNCIONARIO(membroId), {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
 
-    if(novoNome.length <= 0){
-      Alert.alert("Erro", "Informe um nome")
-      return
+      if(resposta_api.ok){
+        const dados = await resposta_api.json()
+        
+        setNovoNome(dados.nome);
+        setNovoLogin(dados.login);
+        setNovaSenha(dados.senha);
+        setTipo(dados.tipo)
+      } else {
+        Alert.alert("Erro", "Erro ao buscar funcionario")
+      }
+    } catch(erro){
+      Alert.alert("Erro", "Erro ao buscar manutenção")
+      console.error('Erro ao buscar funcionario:', erro);
     }
+  }
 
-    if(!(novoLogin.includes("@") && novoLogin.includes("."))){
-      Alert.alert("Erro", "Informe um email valido")
-      return
-    } 
+  const atualizarFuncionarioAPI = async () => {
+    try{
+      if(novoNome.length <= 0){
+        Alert.alert("Erro", "Informe um nome")
+        return
+      }
 
-    if(novaSenha.length < 8){
-      Alert.alert("Erro", "Informe uma senha com no mínimo 8 digitos")
-      return
+      if(!(novoLogin.includes("@") && novoLogin.includes("."))){
+        Alert.alert("Erro", "Informe um email valido")
+        return
+      } 
+
+      if(novaSenha.length < 8){
+        Alert.alert("Erro", "Informe uma senha com no mínimo 8 digitos")
+        return
+      }
+
+      const resposta_api = await fetch(FUNCIONARIO_ROUTES.PUT_FUNCIONARIO(membroId), {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: membroId,
+          nome: novoNome,
+          login: novoLogin,
+          senha: novaSenha,
+          tipo: tipo
+        })
+      })
+
+      if(resposta_api.ok){
+        setModalVisible(false)
+        Alert.alert("Sucesso", "funcionário alterado com sucesso")
+        setUpdateFlag(updateFlag => updateFlag + 1)
+      } else {
+        Alert.alert("Erro", "Erro ao atualizar funcionário")
+      }
+    } catch(erro){
+      Alert.alert("Erro", "Erro ao atualizar funcionário")
+      console.error('Erro ao atualizar funcionário:', erro);
     }
-
-    let novoMembro = {
-      "id": membroObj.id,
-      "data": new Date(Date.now()).toLocaleDateString(),
-      "tipo": membroObj.tipo,
-      "nome": novoNome,
-      "login": novoLogin,
-      "senha": novaSenha
-    }
-    
-    let listaAtualizada = listaMembros.filter(item => item.id != membroObj.id)
-    listaAtualizada.push(novoMembro)
-
-    // Ordenando a lista para devolver o objeto na mesma posicao
-    listaAtualizada.sort((a,b) => a.id - b.id)
-
-    database.Membros = listaAtualizada
-    Alert.alert("Sucesso", "usuario alterado com sucesso")
-    setUpdateFlag(updateFlag => updateFlag + 1)
-    setModalVisible(false)
   }
 
   useEffect(() => {
-    if (!membroId) return;
-
-    let membro = database.Membros.find(item => item.id == membroId)
-    if (membro) {
-      setMembroObj(membro);
-      setNovoNome(membro.nome);
-      setNovoLogin(membro.login);
-      setNovaSenha(membro.senha);
+    if(modalVisible){
+      buscarFuncionarioAPI()
     }
   },[membroId])
 
@@ -96,7 +123,7 @@ const EditarMembroModal = ({modalVisible, setModalVisible, updateFlag, setUpdate
           onChangeText={setNovaSenha} 
         />
         
-        <Button containerStyle={styles.button} title="Salvar Alterações" onPress={alterarMembro}></Button>
+        <Button containerStyle={styles.button} title="Salvar Alterações" onPress={atualizarFuncionarioAPI}></Button>
       </View>
     </Modal>
   )

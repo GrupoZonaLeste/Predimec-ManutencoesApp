@@ -5,7 +5,6 @@ import CardConfiguracao from '../components/CardConfiguracao';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
 import { AuthContext } from '../contexts/AuthContext';
 import Logomarca from '../components/Logomarca';
-import { shadow } from '../constants/Effects'
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";

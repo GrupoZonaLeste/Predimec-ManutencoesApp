@@ -1,24 +1,38 @@
 import {View, Text, StyleSheet, Alert} from 'react-native'
 import Button from './Button';
-import database from '../mock/database.json'
+
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 
-const CardFuncionario = ({id, data, nome, login, senha, toggleModal, setUpdateFlag}) => {
-  const deletarMembro = () => {
-    // CHAMAR A API PASSANDO ALGUM PARAMETRO PRA APAGAR O MEMBRO
+import { FUNCIONARIO_ROUTES } from '../api/endpoints';
 
-    let listaAtualizada = database.Membros.filter(item => item.id != id)
-    database.Membros = listaAtualizada
-    Alert.alert("", "O membro foi deletado com sucesso")
-    setUpdateFlag(prev => prev + 1)
+const CardFuncionario = ({id, data, nome, login, senha, tipo, toggleModal, setUpdateFlag}) => {
+  // API - Funcionario
+  const deletarFuncionarioAPI = async () => {
+    try{
+      const resposta_api = await fetch(FUNCIONARIO_ROUTES.DELETE_FUNCIONARIO(id), {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if(resposta_api.ok){
+        Alert.alert("Sucesso", "Funcionário excluido com sucesso!")
+      } else {
+        Alert.alert("Erro", "Erro ao excluir funcionário")
+      }
+    } catch(erro){
+      Alert.alert("Erro", "Erro ao excluir funcionário")
+      console.error('Erro ao deletar funcionário:', erro);
+    }
   }
 
   const confirmarDeletar = () => {
     Alert.alert(
       '',
-      'Tem certeza que deseja deletar esse membro? ',
+      'Tem certeza que deseja deletar esse membro? todas as manutenções criadas por ele serão perdidas',
       [
         {
           text: 'Cancelar',
@@ -28,7 +42,7 @@ const CardFuncionario = ({id, data, nome, login, senha, toggleModal, setUpdateFl
         {
           text: 'Confirmar',
           onPress: () => {
-            deletarMembro()
+            deletarFuncionarioAPI()
           },
         },
       ],
@@ -52,8 +66,10 @@ const CardFuncionario = ({id, data, nome, login, senha, toggleModal, setUpdateFl
       </View>
 
       <View style={styles.linha}>
-        <Button containerStyle={{flex: 0.48}} title="Editar" onPress={toggleModal}/>
-        <Button containerStyle={{flex: 0.48}} backgroundColor={colors.red} color={colors.white} title="Excluir" onPress={confirmarDeletar}/>
+        <Button containerStyle={tipo !== 'admin' ? {flex: 0.48} : {flex: 1}} title="Editar" onPress={toggleModal}/>
+        {tipo !== 'admin' && (
+          <Button containerStyle={{flex: 0.48}} backgroundColor={colors.red} color={colors.white} title="Excluir" onPress={confirmarDeletar}/>
+        )}
       </View>
     </View>
   )
@@ -63,9 +79,8 @@ const styles = StyleSheet.create({
   container: {
     alignSelf: 'stretch',
     borderWidth: 1,
-    borderColor: colors.gray,
-    borderRadius: 3,
-    elevation: 1,
+    borderColor: colors.darkGray,
+    borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'flex-start',
     width: '98%',

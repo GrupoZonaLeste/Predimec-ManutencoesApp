@@ -7,7 +7,7 @@
       "manutencoes": [
         {
           "id": 1,
-          "data": "13/02/2025 11:33:21",
+          "data": "13/02/2025 11:33:22",
           "funcionario": "funcionario 1",
           "equipamentos": [
             {
@@ -15,7 +15,65 @@
               "data": "13/02/2025",
               "nome": "Equipamento 01",
               "descricao": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id maximus metus. Proin id orci elit. Curabitur suscipit iaculis pharetra. Curabitur vel auctor ligula, laoreet lobortis lorem. Etiam suscipit eu velit id condimentum",
-              "trocas": "Polia;Mancal;Rolamento;Fonte",
+              "trocas": [
+                {
+                  "id": 3,
+                  "nome": "fonte",
+                  "fotos": [
+                    {
+                      "id": 11,
+                      "nome": "Troca-21052025-192200",
+                      "caminho": "...",
+                      "legenda": "teste_legenda_antes",
+                      "momento": "antes",
+                      "grupo_id": "Eqp-1-fonte-21052025-192200",
+                      "equip_troca_id": 3
+                    },
+                    {
+                      "id": 12,
+                      "nome": "Troca-21052025-194200",
+                      "caminho": "...",
+                      "legenda": "teste_legenda_depois",
+                      "momento": "depois",
+                      "grupo_id": "Eqp-1-fonte-21052025-192200",
+                      "equip_troca_id": 3
+                    },
+                    {
+                      "id": 13,
+                      "nome": "Troca-21052025-203321",
+                      "caminho": "...",
+                      "legenda": "teste_legenda_antes",
+                      "momento": "antes",
+                      "grupo_id": "Eqp-1-fonte-21052025-203321",
+                      "equip_troca_id": 3
+                    }
+                  ]
+                },
+                {
+                  "id": 4,
+                  "nome": "eixo",
+                  "fotos": [
+                    {
+                      "id": 14,
+                      "nome": "Troca-21052025-204400",
+                      "caminho": "...",
+                      "legenda": "teste_legenda",
+                      "momento": "antes",
+                      "grupo_id": "Eqp-1-eixo-21052025-204400",
+                      "equip_troca_id": 3
+                    },
+                    {
+                      "id": 15,
+                      "nome": "Troca-21052025-213300",
+                      "caminho": "...",
+                      "legenda": "teste_legenda",
+                      "momento": "depois",
+                      "grupo_id": "Eqp-1-eixo-21052025-204400",
+                      "equip_troca_id": 3
+                    }
+                  ]
+                }
+              ],
               "fotos": [
                 {
                   "id": 1,
