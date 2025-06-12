@@ -3,7 +3,7 @@ import { Alert } from 'react-native'
 import database from '../mock/database.json'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { FUNCIONARIO_ROUTES } from '../api/endpoints';
+import { LOGIN_ROUTES } from '../api/endpoints';
 
 export const AuthContext = createContext({
   usuario: null,
@@ -16,7 +16,7 @@ export const AuthProvider =  ({children}) => {
   
   const login = async (login, senha) => {
     try {
-      const resposta_api = await fetch(FUNCIONARIO_ROUTES.POST_LOGIN, {
+      const resposta_api = await fetch(LOGIN_ROUTES.POST_LOGIN, {
         method: "POST",
         headers: {
           'Content-Type': 'application/json'
@@ -30,12 +30,13 @@ export const AuthProvider =  ({children}) => {
       if(resposta_api.ok){
         const dados = await resposta_api.json()
         if(dados){
+
           const dadosUsuario = {
-            "id": dados.id, 
-            "nome": dados.nome,
-            "tipo": dados.tipo,
-            "login": dados.login,
-            "senha": dados.senha
+            "id": dados.funcionario.id, 
+            "nome": dados.funcionario.nome,
+            "tipo": dados.funcionario.tipo,
+            "token": dados.token,
+			      "vencimento": dados.dataVencimento
           }
 
           setUsuario(dadosUsuario)
@@ -53,8 +54,36 @@ export const AuthProvider =  ({children}) => {
   }
 
   const logout = async () => {
-    setUsuario(null)
-    await AsyncStorage.removeItem('@usuario');
+    try{
+      const resposta_api = await fetch(LOGIN_ROUTES.POST_LOGOUT, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          token: usuario.token
+        }),
+      })
+
+      console.warn(resposta_api.ok)
+      
+      if(!resposta_api.ok){
+        console.error("Erro ao deslogar")
+      }
+
+      setUsuario(null)
+      await AsyncStorage.removeItem('@usuario');
+    } catch(erro){
+      console.error('Erro ao deslogar:', erro);
+    }
+  }
+
+  const validarToken = async () => {
+    const dataAtual = new Date().toISOString()
+
+    if(dataAtual > usuario.vencimento){
+      logout()
+    }
   }
 
   useEffect(() => {

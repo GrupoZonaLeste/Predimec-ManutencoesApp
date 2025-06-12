@@ -1,10 +1,10 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react'
 import { View, Text, StyleSheet, Alert} from 'react-native'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
-import database from '../mock/database.json'
-import { colors } from "../constants/Colors";
+
+import { AuthContext } from '../contexts/AuthContext'
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { getMembroTemplate } from '../mock/objectTemplates'
@@ -12,6 +12,7 @@ import { getMembroTemplate } from '../mock/objectTemplates'
 import { FUNCIONARIO_ROUTES } from '../api/endpoints'
 
 const EditarMembroModal = ({modalVisible, setModalVisible, updateFlag, setUpdateFlag, membroId}) => {
+  const { usuario } = useContext(AuthContext)
   const [membroObj, setMembroObj] = useState(getMembroTemplate())
 
   const [novoNome, setNovoNome] = useState("")
@@ -25,7 +26,8 @@ const EditarMembroModal = ({modalVisible, setModalVisible, updateFlag, setUpdate
       const resposta_api = await fetch(FUNCIONARIO_ROUTES.GET_ONE_FUNCIONARIO(membroId), {
         method: "GET",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 
@@ -65,7 +67,8 @@ const EditarMembroModal = ({modalVisible, setModalVisible, updateFlag, setUpdate
       const resposta_api = await fetch(FUNCIONARIO_ROUTES.PUT_FUNCIONARIO(membroId), {
         method: "PUT",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         },
         body: JSON.stringify({
           id: membroId,

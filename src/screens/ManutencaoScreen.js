@@ -30,7 +30,8 @@ const ManutencaoScreen = ({route}) => {
       const resposta_api = await fetch(MANUTENCAO_ROUTES.GET_ONE_MANUTENCAO(id_manutencao), {
         method: "GET",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 
@@ -50,7 +51,8 @@ const ManutencaoScreen = ({route}) => {
       const resposta_api = await fetch(MANUTENCAO_ROUTES.DELETE_MANUTENCAO(id_manutencao), {
         method: "DELETE",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 
@@ -94,7 +96,8 @@ const ManutencaoScreen = ({route}) => {
       const resposta_api = await fetch(EQUIPAMENTO_ROUTES.POST_EQUIPAMENTO, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         },
         body: JSON.stringify({
           data_criacao: dataAtual.toISOString(),

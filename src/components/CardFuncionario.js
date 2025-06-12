@@ -1,4 +1,6 @@
 import {View, Text, StyleSheet, Alert} from 'react-native'
+import { useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 import Button from './Button';
 
 import { colors } from "../constants/Colors";
@@ -8,13 +10,15 @@ import { spacing } from "../constants/Spacing";
 import { FUNCIONARIO_ROUTES } from '../api/endpoints';
 
 const CardFuncionario = ({id, data, nome, login, senha, tipo, toggleModal, setUpdateFlag}) => {
+  const { usuario } = useContext(AuthContext)
   // API - Funcionario
   const deletarFuncionarioAPI = async () => {
     try{
       const resposta_api = await fetch(FUNCIONARIO_ROUTES.DELETE_FUNCIONARIO(id), {
         method: "DELETE",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 

@@ -1,3 +1,4 @@
+import { useContext, useEffect, useState} from 'react';
 import { View, Text, StyleSheet, StatusBar, Alert, Image, FlatList, ScrollView, RefreshControl} from 'react-native'
 import { useNavigation, useIsFocused} from '@react-navigation/native';
 
@@ -14,7 +15,6 @@ import { shadow } from '../constants/Effects'
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
-import { useContext, useEffect, useState} from 'react';
 import { AuthContext } from '../contexts/AuthContext';
 import { formatarData } from '../utils/conversorData';
 
@@ -36,7 +36,8 @@ const ClienteScreen = ({route}) => {
       const resposta_api = await fetch(CLIENTE_ROUTES.GET_ONE_CLIENTE(id), {
         method: "GET",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 
@@ -56,7 +57,8 @@ const ClienteScreen = ({route}) => {
       const resposta_api = await fetch(CLIENTE_ROUTES.PUT_CLIENTE(id), {
         method: "PUT",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         },
         body: JSON.stringify({
           id: id,
@@ -80,7 +82,8 @@ const ClienteScreen = ({route}) => {
       const resposta_api = await fetch(CLIENTE_ROUTES.DELETE_CLIENTE(id), {
         method: "DELETE",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 
@@ -125,7 +128,8 @@ const ClienteScreen = ({route}) => {
       const resposta_api = await fetch(MANUTENCAO_ROUTES.POST_MANUTENCAO, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         },
         body: JSON.stringify({
           data_criacao: dataAtual.toISOString(),

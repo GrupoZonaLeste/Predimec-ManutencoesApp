@@ -33,7 +33,8 @@ const MembrosScreen = () => {
       const resposta_api = await fetch(FUNCIONARIO_ROUTES.GET_ALL_FUNCIONARIOS, {
         method: "GET",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 

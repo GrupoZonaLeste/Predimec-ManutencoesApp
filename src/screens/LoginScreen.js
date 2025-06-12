@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, StatusBar, Alert} from 'react-native'
-  import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Logomarca from '../components/Logomarca';
 import Button from '../components/Button'
 import TextInput from '../components/TextInput';

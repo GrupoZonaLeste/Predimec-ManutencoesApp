@@ -3,6 +3,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import CardConfiguracao from '../components/CardConfiguracao';
 import SimpleLineIcons from '@expo/vector-icons/SimpleLineIcons';
+
 import { AuthContext } from '../contexts/AuthContext';
 import Logomarca from '../components/Logomarca';
 import { colors } from "../constants/Colors";

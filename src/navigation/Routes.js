@@ -12,7 +12,7 @@ import ManutencaoScreen from '../screens/ManutencaoScreen';
 import EquipamentoScreen from '../screens/EquipamentoScreen';
 import MembrosScreen from '../screens/MembrosScreen';
 import ClienteScreen from '../screens/ClienteScreen';
-import { AuthContext, AuthProvider } from '../contexts/AuthContext';
+import { AuthContext } from '../contexts/AuthContext';
 import { colors } from '../constants/Colors'
 import { useContext, useEffect, useState } from 'react';
 

@@ -1,10 +1,10 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { View, Text, StyleSheet, Alert} from 'react-native'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
-import database from '../mock/database.json'
-import { colors } from "../constants/Colors";
+
+import { AuthContext } from '../contexts/AuthContext'
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { getMembroTemplate } from '../mock/objectTemplates'
@@ -12,6 +12,7 @@ import { getMembroTemplate } from '../mock/objectTemplates'
 import { FUNCIONARIO_ROUTES } from '../api/endpoints'
 
 const CriarMembroModal = ({modalVisible, setModalVisible}) => {
+  const { usuario } = useContext(AuthContext)
   const [novoMembroObj, setNovoMembroObj] = useState(getMembroTemplate())
 
   const criarFuncionarioAPI = async () => {
@@ -36,7 +37,8 @@ const CriarMembroModal = ({modalVisible, setModalVisible}) => {
       const resposta_api = await fetch(FUNCIONARIO_ROUTES.POST_FUNCIONARIO, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         },
         body: JSON.stringify({
           data_criacao: dataAtual.toISOString(),

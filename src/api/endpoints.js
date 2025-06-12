@@ -1,7 +1,11 @@
-const BASE_URL = "http://192.168.15.11:3000"
+const BASE_URL = "http://192.168.15.10:3000"
+
+export const LOGIN_ROUTES = {
+  POST_LOGIN: `${BASE_URL}/login`,
+  POST_LOGOUT: `${BASE_URL}/logout`
+}
 
 export const FUNCIONARIO_ROUTES = {
-  POST_LOGIN: `${BASE_URL}/funcionario/login`,
   GET_ALL_FUNCIONARIOS: `${BASE_URL}/funcionario`,
   GET_ONE_FUNCIONARIO: (id) => `${BASE_URL}/funcionario/${id}`,
   POST_FUNCIONARIO: `${BASE_URL}/funcionario`,

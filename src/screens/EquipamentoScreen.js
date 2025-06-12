@@ -40,7 +40,8 @@ const EquipamentoScreen = ({route}) => {
       const resposta_api = await fetch(EQUIPAMENTO_ROUTES.GET_ONE_EQUIPAMENTO(id_equipamento), {
         method: "GET",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 
@@ -65,7 +66,8 @@ const EquipamentoScreen = ({route}) => {
       const resposta_api = await fetch(EQUIPAMENTO_ROUTES.DELETE_EQUIPAMENTO(id_equipamento), {
         method: "DELETE",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 

@@ -1,4 +1,4 @@
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useContext} from 'react'
 import { View, Text, StyleSheet, Image, StatusBar, ScrollView, FlatList, RefreshControl} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -7,19 +7,20 @@ import CardSmallManutencao from '../components/CardSmallManutencao'
 import ButtonAdd from '../components/ButtonAdd';
 import CardCliente from '../components/CardCliente';
 import CriarClienteModal from '../modals/CriarClienteModal'
+import { AuthContext } from '../contexts/AuthContext';
 import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { getClienteTemplate } from '../mock/objectTemplates';
 
-import { formatarData } from '../utils/conversorData';
 import { CLIENTE_ROUTES } from '../api/endpoints';
-import { MANUTENCAO_ROUTES } from '../api/endpoints';
 
 const HomeScreen = () => {
-  const navigation = useNavigation()
+  const { usuario } = useContext(AuthContext)
   const [listaClientes, setListaClientes] = useState(getClienteTemplate())
+
+  const navigation = useNavigation()
 
   // estado e função para efetuar recarregamento de lista
   const [refreshing, setRefreshing] = useState(false)
@@ -56,7 +57,8 @@ const HomeScreen = () => {
       const resposta_api = await fetch(CLIENTE_ROUTES.GET_ALL_CLIENTES, {
         method: "GET",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         }
       })
 

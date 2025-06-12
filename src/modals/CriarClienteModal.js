@@ -1,14 +1,17 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { View, Text, StyleSheet, Alert} from 'react-native'
-import database from '../mock/database.json'
+
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
+
+import { AuthContext } from '../contexts/AuthContext'
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { CLIENTE_ROUTES } from '../api/endpoints'
 
 const CriarClienteModal = ({modalVisible, setModalVisible}) => {
+  const { usuario } = useContext(AuthContext)
   const [nome, setNome] = useState('')
 
   const criarCliente = async () => {
@@ -19,7 +22,8 @@ const CriarClienteModal = ({modalVisible, setModalVisible}) => {
       const resposta_api = await fetch(CLIENTE_ROUTES.POST_CLIENTE, {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
         },
         body: JSON.stringify({
           nome: nome,
