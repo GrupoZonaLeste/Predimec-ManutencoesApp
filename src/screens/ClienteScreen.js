@@ -1,3 +1,4 @@
+import { useContext, useEffect, useState} from 'react';
 import { View, Text, StyleSheet, StatusBar, Alert, Image, FlatList, ScrollView, RefreshControl} from 'react-native'
 import { useNavigation, useIsFocused} from '@react-navigation/native';
 
@@ -9,14 +10,16 @@ import CardManutencao from '../components/CardManutencao';
 import Divider from '../components/Divider';
 import TextInput from '../components/TextInput';
 
-import database from '../mock/database.json'
 import { getClienteTemplate } from '../mock/objectTemplates';
 import { shadow } from '../constants/Effects'
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
-import { useContext, useEffect, useState} from 'react';
 import { AuthContext } from '../contexts/AuthContext';
+import { formatarData } from '../utils/conversorData';
+
+import { CLIENTE_ROUTES } from '../api/endpoints';
+import { MANUTENCAO_ROUTES } from '../api/endpoints';
 
 const ClienteScreen = ({route}) => {
   const { usuario } = useContext(AuthContext)
@@ -27,102 +30,73 @@ const ClienteScreen = ({route}) => {
   // estado e função para efetuar recarregamento de lista
   const [refreshing, setRefreshing] = useState(false)
 
-  const handleRefresh = () => {
-    setRefreshing(true)
+  // API - CLIENTE
+  const buscarClienteAPI = async () => {
+    try{
+      const resposta_api = await fetch(CLIENTE_ROUTES.GET_ONE_CLIENTE(id), {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      })
 
-    setTimeout(() => {
-      let cliente = database.Clientes.find(cliente => cliente.id == id)
-      setClienteObj(cliente)
-      setNovoNome(cliente.nome)
-      setIsEditMode(false)
-      setRefreshing(false)
-    }, 500)
-  }
-
-  // navegação
-  const navigation = useNavigation()
-
-  const goToVerManutencao = (id_cliente, id_manutencao) => {
-    navigation.navigate('ClienteStack', {
-      screen: 'VerManutencao',
-      params: {
-        id_cliente: id_cliente,
-        id_manutencao: id_manutencao
+      if(resposta_api.ok){
+        const dados = await resposta_api.json()
+        setClienteObj(dados)
+        setNovoNome(dados.nome)
+        setIsEditMode(false)
       }
-    })
-  }
-
-  /*
-  const goToCriarManutencao = (id) => {
-    navigation.navigate('ClienteStack', {
-      screen: 'CriarManutencao',
-      params: {
-        id: id
-      }
-    })
-  }
-  */
-
-  // modo de edição
-  const [isEditMode, setIsEditMode] = useState(false)
-  const [novoNome, setNovoNome] = useState("")
-
-  const criarManutencao = () => {
-    let listaManutencoes = clienteObj.manutencoes
-
-    // criando id da nova manutencao
-    let newId = 0;
-    if(listaManutencoes.length > 0){
-      const ultimoId = listaManutencoes[listaManutencoes.length - 1].id
-
-      if(ultimoId){
-        newId = parseInt(ultimoId) + 1
-      } 
-    } else {
-      newId = parseInt(1)
+    } catch(erro){
+      console.error('Erro ao buscar cliente:', erro);
     }
+  }
 
-    const novaManutencao = {
-      "id": newId,
-      "data": new Date(Date.now()).toLocaleString(),
-      "funcionario": usuario.nome,
-      "equipamentos": []
-    }
+  const atualizarClienteAPI = async() => {
+    try{
+      const resposta_api = await fetch(CLIENTE_ROUTES.PUT_CLIENTE(id), {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        },
+        body: JSON.stringify({
+          id: id,
+          nome: novoNome
+        })
+      })
 
-    clienteObj.manutencoes.push(novaManutencao)
-
-    navigation.navigate("ClienteStack", {
-      screen: "VerManutencao",
-      params: {
-        id_cliente: clienteObj.id,
-        id_manutencao: newId
+      if(resposta_api.ok){
+        Alert.alert("Sucesso", "Nome do cliente alterado com sucesso")
+        setUpdateFlag(updateFlag => updateFlag + 1)
+      } else {
+        Alert.alert("Erro", "Erro ao atualizar cliente")
       }
-    })
-  }
+    } catch(erro){
+      console.error('Erro ao buscar cliente:', erro);
+    }
+  } 
 
-  const salvarAlteracao = () => {
-    let novoClienteObj = {...clienteObj, "nome": novoNome}
-    
-    // FAZER O FETCH UPDATE AQUI
+  const deletarClienteAPI = async() => {
+    try{
+      const resposta_api = await fetch(CLIENTE_ROUTES.DELETE_CLIENTE(id), {
+        method: "DELETE",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      })
 
-    let novaListaClientes = database.Clientes.filter(item => item.id != id)
-    novaListaClientes.push(novoClienteObj)
-
-    // Ordenando a lista pelos IDs
-    novaListaClientes.sort((a,b) => a.id - b.id)
-
-    database.Clientes = novaListaClientes
-    Alert.alert("Sucesso", "Nome do cliente alterado com sucesso")
-    setUpdateFlag(updateFlag => updateFlag + 1)
-  }
-
-  const deletarCliente = () => {
-    // FAZER O FETCH COM DELETE AQUI PARA APAGAR O CLIENTE
-
-    let listaAtualizada = database.Clientes.filter(item => item.id != id)
-    database.Clientes = listaAtualizada
-    Alert.alert("", "O cliente foi deletado com sucesso")
-    navigation.goBack()
+      if(resposta_api.ok){
+        Alert.alert("Sucesso", "Cliente excluido com sucesso!")
+        navigation.goBack()
+      } else {
+        Alert.alert("Erro", "Erro ao excluir cliente")
+      }
+    } catch(erro){
+      Alert.alert("Erro", "Erro ao excluir cliente")
+      console.error('Erro ao deletar cliente:', erro);
+    }
   }
 
   const confirmarDeletar = () => {
@@ -138,7 +112,7 @@ const ClienteScreen = ({route}) => {
         {
           text: 'Confirmar',
           onPress: () => {
-            deletarCliente()
+            deletarClienteAPI()
           },
         },
       ],
@@ -146,15 +120,74 @@ const ClienteScreen = ({route}) => {
     );
   }
 
+  // API - MANUTENCAO
+  const criarManutencaoAPI = async () => {
+    try{
+      const dataAtual = new Date()
+
+      const resposta_api = await fetch(MANUTENCAO_ROUTES.POST_MANUTENCAO, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        },
+        body: JSON.stringify({
+          data_criacao: dataAtual.toISOString(),
+          cliente_id: id,
+          funcionario_id: usuario.id
+        })
+      })
+
+      if(resposta_api.ok){
+        const res = await resposta_api.json()
+
+        navigation.navigate("ClienteStack", {
+          screen: "VerManutencao",
+          params: {
+            id_cliente: clienteObj.id,
+            id_manutencao: res.id
+          }
+        })
+      } else {
+        Alert.alert("Erro","Erro ao criar manutenção")
+      }
+    } catch(erro){
+      console.error('Erro ao criar manutenção:', erro);
+    }
+  }
+
+  // Recarregando lista
+  const handleRefresh = () => {
+    setRefreshing(true)
+
+    setTimeout(() => {
+      buscarClienteAPI()
+      setRefreshing(false)
+    }, 500)
+  }
+
+  // navegação
+  const navigation = useNavigation()
+
+  const goToVerManutencao = (id_manutencao) => {
+    navigation.navigate('ClienteStack', {
+      screen: 'VerManutencao',
+      params: {
+        id_manutencao: id_manutencao
+      }
+    })
+  }
+
+  // modo de edição
+  const [isEditMode, setIsEditMode] = useState(false)
+  const [novoNome, setNovoNome] = useState("")
+
   // Renderização e Re-render
   // Esse Hook do react-native detecta toda vez que o usuário entra na tela
   const focused = useIsFocused()
 
   useEffect(() => {
-    let cliente = database.Clientes.find(cliente => cliente.id == id)
-    setClienteObj(cliente)
-    setNovoNome(cliente.nome)
-    setIsEditMode(false)
+    buscarClienteAPI()
   }, [focused, updateFlag])
 
   // Checagem de permissão pra excluir
@@ -179,7 +212,7 @@ const ClienteScreen = ({route}) => {
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'flex-start'}}>
         {isEditMode ? (
           <>
-            <Button title="Salvar Alterações" containerStyle={{width: '100%'}} onPress={salvarAlteracao} />
+            <Button title="Salvar Alterações" containerStyle={{width: '100%'}} onPress={atualizarClienteAPI} />
             <Divider />
             <TextInput 
               placeholder="Digite um nome..."
@@ -193,11 +226,13 @@ const ClienteScreen = ({route}) => {
           <Text style={styles.nomeCliente}>{clienteObj.nome}</Text>
         )}
         
-        <Text style={styles.criadoEm}>Criado em {clienteObj.criacao}</Text>
+        <Text style={styles.criadoEm}>
+          Criado em {formatarData(clienteObj.data_criacao)}
+        </Text>
         <Button 
           title='Nova Manutenção' 
           containerStyle={{width: '100%', marginVertical: spacing.medium}}
-          onPress={() => criarManutencao()}
+          onPress={criarManutencaoAPI}
         />
       </View>
 
@@ -225,8 +260,8 @@ const ClienteScreen = ({route}) => {
             keyExtractor={(item, idx) => idx}
             renderItem={({ item }) => (
               <CardManutencao 
-                nome={item.data} 
-                onPress={() => goToVerManutencao(clienteObj.id, item.id)}
+                nome={formatarData(item.data_criacao)} 
+                onPress={() => goToVerManutencao(item.id)}
               />
             )}
             refreshing={refreshing}

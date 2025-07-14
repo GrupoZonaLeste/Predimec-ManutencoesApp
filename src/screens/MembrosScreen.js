@@ -1,17 +1,19 @@
 import React, {useState, useEffect, useContext} from 'react'
 import { View, Text, StyleSheet, StatusBar, ScrollView, Image, FlatList, RefreshControl} from 'react-native'
-import { useIsFocused} from '@react-navigation/native';
+
 import Logomarca from '../components/Logomarca';
 import Button from '../components/Button';
 import CardFuncionario from '../components/CardFuncionario';
 import CriarMembroModal from '../modals/CriarMembroModal';
-import database from '../mock/database.json'
 import EditarMembroModal from '../modals/EditarMembroModal';
 import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { AuthContext } from '../contexts/AuthContext';
+
+import { formatarData } from '../utils/conversorData';
+import { FUNCIONARIO_ROUTES } from '../api/endpoints';
 
 const MembrosScreen = () => {
   const { usuario } = useContext(AuthContext)
@@ -25,13 +27,35 @@ const MembrosScreen = () => {
   // estado e função para efetuar recarregamento de lista
   const [refreshing, setRefreshing] = useState(false)
 
+  // API - Funcionarios 
+  const buscarFuncionariosAPI = async () => {
+    try{
+      const resposta_api = await fetch(FUNCIONARIO_ROUTES.GET_ALL_FUNCIONARIOS, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      })
+
+      if(resposta_api.ok){
+        const dados = await resposta_api.json()
+        setListaMembros(dados)
+      } else {
+        Alert.alert("Erro", "Erro ao buscar funcionários")
+      }
+    } catch(erro){
+      Alert.alert("Erro", "Erro ao buscar funcionários")
+      console.error('Erro ao buscar funcionários:', erro);
+    }
+  } 
+
+  // recarregar lista
   const handleRefresh = () => {
     setRefreshing(true)
 
     setTimeout(() => {
-      let listaMembros = database.Membros.filter(item => item.id != usuario.id)
-      listaMembros = listaMembros.filter(item => item.tipo != 'admin')
-      setListaMembros(listaMembros)
+      buscarFuncionariosAPI()
       setRefreshing(false)
     }, 500)
   }
@@ -46,8 +70,7 @@ const MembrosScreen = () => {
   }
 
   useEffect(() => {
-    let listaMembros = database.Membros.filter(item => item.id != usuario.id)
-    setListaMembros(listaMembros)
+    buscarFuncionariosAPI()
   }, [modalNovoMembro, updateFlag])
 
   return(
@@ -92,10 +115,11 @@ const MembrosScreen = () => {
             renderItem={({item}) => (
               <CardFuncionario
                 id={item.id}
-                data={item.data}
+                data={formatarData(item.data_criacao)}
                 nome={item.nome}
                 login={item.login}
                 senha={item.senha}
+                tipo={item.tipo}
                 toggleModal={() => toggleModalEditarMembro(item.id)}
                 setUpdateFlag={setUpdateFlag}
               />

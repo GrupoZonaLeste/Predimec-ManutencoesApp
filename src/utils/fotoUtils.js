@@ -48,3 +48,40 @@ export const tirarFotoBase64 = async ({setList, list}) => {
   Alert.alert("Sucesso", "Foto adicionada com sucesso.")
   
 }
+
+export const tirarFotoTroca = async () => {
+  const { status } = await ImagePicker.requestCameraPermissionsAsync()
+  if (status !== 'granted') {
+    Alert.alert('Permissão negada', 'Precisamos de acesso à câmera.')
+    return
+  }
+
+  const resultado = await ImagePicker.launchCameraAsync({
+    base64: false,
+    quality: 0.6,
+    allowsEditing: true
+  })
+
+  if (!resultado.assets || resultado.assets.length === 0) {
+    return
+  }
+
+  const asset = resultado.assets[0]
+
+  if (!asset.uri) {
+    Alert.alert("Erro", "Imagem foi capturada, mas sem caminho de arquivo.")
+    return
+  }
+
+  const dataAtual = new Date()
+  const dataDia = dataAtual.toLocaleDateString('pt-BR').replace(/[/]/g, "")
+  const dataHora = dataAtual.toLocaleTimeString('pt-BR').replace(/[:]/g, "")
+
+  const fotoObj = {
+    nome: `Troca-${dataDia}-${dataHora}`,
+    fotoUri: asset.uri
+  }
+
+  Alert.alert("Sucesso", "Foto adicionada com sucesso.")
+  return fotoObj
+}

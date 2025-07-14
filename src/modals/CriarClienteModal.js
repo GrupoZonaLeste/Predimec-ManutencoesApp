@@ -1,39 +1,46 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { View, Text, StyleSheet, Alert} from 'react-native'
-import database from '../mock/database.json'
+
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
+
+import { AuthContext } from '../contexts/AuthContext'
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
+import { CLIENTE_ROUTES } from '../api/endpoints'
 
 const CriarClienteModal = ({modalVisible, setModalVisible}) => {
+  const { usuario } = useContext(AuthContext)
   const [nome, setNome] = useState('')
 
-  const criarCliente = () => {
+  const criarCliente = async () => {
     // FAZER O POST PRA SALVAR O MEMBRO
-    const listaClientes = database.Clientes
+    const dataAtual = new Date()
 
-    let newId = 0
-    if(listaClientes.length > 0){
-      let ultimoId = listaClientes[listaClientes.length - 1].id
-      newId = parseInt(ultimoId) + 1
-    } else {
-      newId = parseInt(1)
+    try{
+      const resposta_api = await fetch(CLIENTE_ROUTES.POST_CLIENTE, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        },
+        body: JSON.stringify({
+          nome: nome,
+          data_criacao: dataAtual.toISOString()
+        })
+      })
+
+      if(resposta_api.ok){
+        const res = await resposta_api.json()
+        Alert.alert("Sucesso","Novo cliente cadastrado com sucesso")
+        setModalVisible(false)
+      } else {
+        Alert.alert("Erro","Erro ao criar cliente")
+      }
+    }catch(erro){
+      console.error('Erro ao criar cliente:', erro);
     }
-
-    const dataAtual = new Date(Date.now()).toLocaleDateString()
-
-    const novoCliente = {
-      "id": newId,
-      "nome": nome,
-      "criacao": dataAtual,
-      "manutencoes": []
-    }
-
-    listaClientes.push(novoCliente)
-    setModalVisible(false)
-    Alert.alert("Sucesso","Novo cliente cadastrado com sucesso")
   }
 
   return(

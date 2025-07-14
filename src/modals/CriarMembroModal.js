@@ -1,59 +1,64 @@
-import React, {useState} from 'react'
+import React, {useState, useContext} from 'react'
 import { View, Text, StyleSheet, Alert} from 'react-native'
 import Button from '../components/Button'
 import TextInput from '../components/TextInput'
 import Modal from '../components/Modal'
-import database from '../mock/database.json'
-import { colors } from "../constants/Colors";
+
+import { AuthContext } from '../contexts/AuthContext'
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { getMembroTemplate } from '../mock/objectTemplates'
 
+import { FUNCIONARIO_ROUTES } from '../api/endpoints'
+
 const CriarMembroModal = ({modalVisible, setModalVisible}) => {
+  const { usuario } = useContext(AuthContext)
   const [novoMembroObj, setNovoMembroObj] = useState(getMembroTemplate())
 
-  const criarMembro = () => {
-    let listaMembros = database.Membros
+  const criarFuncionarioAPI = async () => {
+    try{
+      if(novoMembroObj.nome.length <= 0){
+        Alert.alert("Erro", "Informe um nome")
+        return
+      }
 
-    if(novoMembroObj.nome.length <= 0){
-      Alert.alert("Erro", "Informe um nome")
-      return
+      if(!(novoMembroObj.login.includes("@") && novoMembroObj.login.includes("."))){
+        Alert.alert("Erro", "Informe um email valido")
+        return
+      } 
+
+      if(novoMembroObj.senha.length < 8){
+        Alert.alert("Erro", "Informe uma senha com no mínimo 8 digitos")
+        return
+      }
+
+      const dataAtual = new Date()
+
+      const resposta_api = await fetch(FUNCIONARIO_ROUTES.POST_FUNCIONARIO, {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        },
+        body: JSON.stringify({
+          data_criacao: dataAtual.toISOString(),
+          nome: novoMembroObj.nome,
+          login: novoMembroObj.login,
+          senha: novoMembroObj.senha,
+          tipo: "funcionario"
+        })
+      })
+
+      if(resposta_api.ok){
+        Alert.alert('Sucesso','Novo membro criado com sucesso')
+        setModalVisible(false)
+      } else {
+        Alert.alert("Erro", "Erro ao criar equipamento")
+      }
+    } catch(erro) {
+      Alert.alert("Erro", "Erro ao criar equipamento")
+      console.error('Erro ao criar funcionário:', erro);
     }
-
-    if(!(novoMembroObj.login.includes("@") && novoMembroObj.login.includes("."))){
-      Alert.alert("Erro", "Informe um email valido")
-      return
-    } 
-
-    if(novoMembroObj.senha.length < 8){
-      Alert.alert("Erro", "Informe uma senha com no mínimo 8 digitos")
-      return
-    }
-    
-    let newId = 0
-    if(listaMembros.length > 0){
-      let ultimoId = database.Membros[listaMembros.length - 1].id
-      newId = parseInt(ultimoId) + 1
-    } else {
-      newId = parseInt(1)
-    }
-
-    let dataAtual = new Date(Date.now()).toLocaleDateString()
-
-    let novoMembro = {
-      "id": newId,
-      "data": dataAtual,
-      "tipo": "funcionario",
-      "nome": novoMembroObj.nome,
-      "login": novoMembroObj.login,
-      "senha": novoMembroObj.senha
-    }
-
-    // FAZER O POST PRA SALVAR O MEMBRO
-
-    listaMembros.push(novoMembro)
-    Alert.alert('Sucesso','Novo membro criado com sucesso')
-    setModalVisible(false)
   }
 
   return(
@@ -81,7 +86,7 @@ const CriarMembroModal = ({modalVisible, setModalVisible}) => {
           onChangeText={(text) => setNovoMembroObj(obj => ({...obj, "senha": text}))}
         />
         
-        <Button containerStyle={styles.button} title="Criar novo membro" onPress={criarMembro}></Button>
+        <Button containerStyle={styles.button} title="Criar novo membro" onPress={criarFuncionarioAPI}></Button>
       </View>
     </Modal>
   )

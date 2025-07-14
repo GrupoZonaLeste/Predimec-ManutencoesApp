@@ -1,21 +1,26 @@
-import {useState, useEffect} from 'react'
+import {useState, useEffect, useContext} from 'react'
 import { View, Text, StyleSheet, Image, StatusBar, ScrollView, FlatList, RefreshControl} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import Logomarca from '../components/Logomarca';
-import database from '../mock/database.json'
 import CardSmallManutencao from '../components/CardSmallManutencao'
 import ButtonAdd from '../components/ButtonAdd';
 import CardCliente from '../components/CardCliente';
 import CriarClienteModal from '../modals/CriarClienteModal'
+import { AuthContext } from '../contexts/AuthContext';
 import { shadow } from '../constants/Effects';
 import { colors } from "../constants/Colors";
 import { fontSizes } from "../constants/Fonts";
 import { spacing } from "../constants/Spacing";
 import { getClienteTemplate } from '../mock/objectTemplates';
 
+import { CLIENTE_ROUTES } from '../api/endpoints';
+
 const HomeScreen = () => {
-  const navigation = useNavigation()
+  const { usuario } = useContext(AuthContext)
   const [listaClientes, setListaClientes] = useState(getClienteTemplate())
+
+  const navigation = useNavigation()
 
   // estado e função para efetuar recarregamento de lista
   const [refreshing, setRefreshing] = useState(false)
@@ -24,7 +29,7 @@ const HomeScreen = () => {
     setRefreshing(true)
 
     setTimeout(() => {
-      setListaClientes(database.Clientes)
+      buscarDadosAPI()
       setRefreshing(false)
     }, 500)
   }
@@ -47,14 +52,33 @@ const HomeScreen = () => {
   }
 
   // Renderização da lista e re-render
+  const buscarDadosAPI = async () => {
+    try {
+      const resposta_api = await fetch(CLIENTE_ROUTES.GET_ALL_CLIENTES, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${usuario.token}`
+        }
+      })
+
+      if(resposta_api.ok){
+        const dados = await resposta_api.json();
+        setListaClientes(dados)
+      }
+    } catch(erro){
+      console.error('Erro ao buscar clientes:', erro);
+    }
+  }
+
   const focused = useIsFocused()
 
   useEffect(() => {
-    setListaClientes(database.Clientes)
+    buscarDadosAPI()
   }, [focused, modalCriarCliente])
 
   return(
-    <View style={styles.mainContainer}>
+    <SafeAreaView style={styles.mainContainer}>
       <CriarClienteModal modalVisible={modalCriarCliente} setModalVisible={setModalCriarCliente} />
 
       <View style={{flex: 'auto', width: '100%', alignItems: 'center', justifyContent: 'center'}}>
@@ -114,7 +138,7 @@ const HomeScreen = () => {
         
       </View>
       
-    </View>
+    </SafeAreaView>
   )
 }
 
